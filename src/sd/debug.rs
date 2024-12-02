@@ -190,7 +190,7 @@ impl<'a> Debugger<'a> {
     }
 }
 
-impl<'a, 'b> IntoIterator for &'a Debugger<'b> {
+impl<'a> IntoIterator for &'a Debugger<'_> {
     type Item = (Option<&'a str>, Name, &'a Value);
     type IntoIter = Iter<'a>;
 
