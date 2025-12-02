@@ -108,7 +108,7 @@ impl AutoSectionData {
             DynSectionData::Memory(m) => {
                 m.seek(SeekFrom::Start(0))?;
                 std::io::copy(m, &mut file)
-            },
+            }
             //SAFETY: If the section is not an InMemorySection then move_to_file is not supposed to have been called,
             // and that is an unrecoverable internal BPX error.
             DynSectionData::File(_) => std::hint::unreachable_unchecked(),
