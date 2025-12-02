@@ -69,7 +69,7 @@ impl<T> NamedItemTable<T> {
     }
 
     /// Gets all items in this table.
-    pub fn iter(&self) -> std::slice::Iter<T> {
+    pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.list.iter()
     }
 

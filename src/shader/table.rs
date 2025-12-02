@@ -71,7 +71,7 @@ impl SymbolTable {
         }
     }
 
-    pub fn iter(&self) -> std::slice::Iter<Symbol> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Symbol> {
         self.table.iter()
     }
 
@@ -217,7 +217,7 @@ pub struct SymbolTableRef<'a, T> {
 
 impl<T> SymbolTableRef<'_, T> {
     /// Gets all symbols in this table.
-    pub fn iter(&self) -> std::slice::Iter<Symbol> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Symbol> {
         self.table.iter()
     }
 
@@ -396,7 +396,7 @@ impl ShaderTable {
         }
     }
 
-    pub fn iter(&self) -> std::slice::Iter<Handle> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Handle> {
         self.handles.iter()
     }
 
@@ -477,7 +477,7 @@ pub struct ShaderTableRef<'a, T> {
 
 impl<T> ShaderTableRef<'_, T> {
     /// Gets all shaders in this table.
-    pub fn iter(&self) -> std::slice::Iter<Handle> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Handle> {
         self.table.iter()
     }
 

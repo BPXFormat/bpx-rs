@@ -116,7 +116,7 @@ impl<T> Package<T> {
     ///
     /// This returns None if the object table is not loaded. To load the object table, call
     /// the objects() member function.
-    pub fn objects_mut(&mut self) -> Option<ObjectTableMut<T>> {
+    pub fn objects_mut(&mut self) -> Option<ObjectTableMut<'_, T>> {
         self.table.get_mut().map(|v| ObjectTableMut {
             table: v,
             container: &mut self.container,
@@ -409,7 +409,7 @@ impl<T: Read + Seek> Package<T> {
     ///
     /// An [Error](crate::shader::error::Error) is returned if the object table could not be
     /// loaded.
-    pub fn objects(&self) -> Result<ObjectTableRef<T>> {
+    pub fn objects(&self) -> Result<ObjectTableRef<'_, T>> {
         let table = self.table.get_or_try_init(|| self.load_object_table())?;
         Ok(ObjectTableRef {
             table,

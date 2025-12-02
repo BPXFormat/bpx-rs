@@ -56,7 +56,7 @@ impl ObjectTable {
         }
     }
 
-    pub fn iter(&self) -> std::slice::Iter<ObjectHeader> {
+    pub fn iter(&self) -> std::slice::Iter<'_, ObjectHeader> {
         self.table.iter()
     }
 
@@ -192,7 +192,7 @@ pub struct ObjectTableRef<'a, T> {
 
 impl<T> ObjectTableRef<'_, T> {
     /// Gets all objects in this table.
-    pub fn iter(&self) -> std::slice::Iter<ObjectHeader> {
+    pub fn iter(&self) -> std::slice::Iter<'_, ObjectHeader> {
         self.table.iter()
     }
 

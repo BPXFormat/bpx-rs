@@ -121,7 +121,7 @@ impl<T> ShaderPack<T> {
     ///
     /// This returns None if the symbol table is not loaded. To load the symbol table, call
     /// the symbols() member function.
-    pub fn symbols_mut(&mut self) -> Option<SymbolTableMut<T>> {
+    pub fn symbols_mut(&mut self) -> Option<SymbolTableMut<'_, T>> {
         self.symbols.get_mut().map(|v| SymbolTableMut {
             table: v,
             container: &mut self.container,
@@ -141,7 +141,7 @@ impl<T> ShaderPack<T> {
     /// Returns a guard for immutable access to the shader table.
     ///
     /// This will load the shader table if it's not already loaded.
-    pub fn shaders(&self) -> ShaderTableRef<T> {
+    pub fn shaders(&self) -> ShaderTableRef<'_, T> {
         let table = self.shaders.get_or_init(|| self.load_shader_table());
         ShaderTableRef {
             container: &self.container,
@@ -152,7 +152,7 @@ impl<T> ShaderPack<T> {
     /// Returns a guard for mutable access to the shader table.
     ///
     /// This will load the shader table if it's not already loaded.
-    pub fn shaders_mut(&mut self) -> ShaderTableMut<T> {
+    pub fn shaders_mut(&mut self) -> ShaderTableMut<'_, T> {
         if self.shaders.get_mut().is_none() {
             //SAFETY: This is safe because only ran if the cell is none.
             unsafe {
@@ -427,7 +427,7 @@ impl<T: Read + Seek> ShaderPack<T> {
     ///
     /// An [Error](Error) is returned if the symbol table could not be
     /// loaded.
-    pub fn symbols(&self) -> Result<SymbolTableRef<T>> {
+    pub fn symbols(&self) -> Result<SymbolTableRef<'_, T>> {
         let table = self.symbols.get_or_try_init(|| self.load_symbol_table())?;
         Ok(SymbolTableRef {
             table,

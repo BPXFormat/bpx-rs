@@ -120,7 +120,7 @@ impl Object {
     }
 
     /// Iterate through the object keys, values and names.
-    pub fn iter(&self) -> Iter<Name, Value> {
+    pub fn iter(&self) -> Iter<'_, Name, Value> {
         self.0.iter()
     }
 }

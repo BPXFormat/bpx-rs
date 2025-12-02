@@ -174,7 +174,7 @@ impl<'a> Debugger<'a> {
     }
 
     /// Iterate through the object keys, values and names.
-    pub fn iter(&self) -> Iter {
+    pub fn iter(&self) -> Iter<'_> {
         Iter {
             inner: self.inner.as_ref().iter(),
             symbols_map: &self.symbols_map,

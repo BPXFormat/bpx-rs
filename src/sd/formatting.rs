@@ -181,11 +181,11 @@ pub trait Format {
     /// * `indent_size`: the indentation size.
     ///
     /// returns: FormatContext
-    fn format(&self, indent_type: IndentType, indent_size: usize) -> FormatContext;
+    fn format(&self, indent_type: IndentType, indent_size: usize) -> FormatContext<'_>;
 }
 
 impl Format for Object {
-    fn format(&self, indent_type: IndentType, indent_size: usize) -> FormatContext {
+    fn format(&self, indent_type: IndentType, indent_size: usize) -> FormatContext<'_> {
         FormatContext {
             indent_size,
             indent_type,

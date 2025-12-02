@@ -133,7 +133,7 @@ impl Array {
     }
 
     /// Iterate through the object keys, values and names.
-    pub fn iter(&self) -> Iter<Value> {
+    pub fn iter(&self) -> Iter<'_, Value> {
         self.0.iter()
     }
 }
