@@ -14,7 +14,7 @@ categories = ["encoding", "rendering::data-formats", "parser-implementations"]
 
 [dependencies]
 bytesutil = "0.7.0"
-tempfile = "3.9.0"
+tempfile = "3.23.0"
 
 # The reason why we lock lzma-sys to static feature is because the library is unfortunatly unable to understand that
 # macOS does not come with a proper lzma by defaut and as such should auto build as static to avoid linking against
@@ -25,11 +25,11 @@ tempfile = "3.9.0"
 # Note for future possible dev: maybe fork or re-write lzma-sys to fix this permanently the right way!
 lzma-sys = { version = "0.1.20", features = ["static"] }
 
-num_cpus = "1.16.0"
-libz-sys = "1.1.12"
-serde = { version = "1.0.193", features = ["derive"], optional = true }
-elsa = { version = "1.9.0", optional = true }
-once_cell = { version = "1.18.0", optional = true }
+num_cpus = "1.17.0"
+libz-sys = "1.1.23"
+serde = { version = "1.0.228", features = ["derive"], optional = true }
+elsa = { version = "1.11.2", optional = true }
+once_cell = { version = "1.21.3", optional = true }
 
 [features]
 # Enables debug output of compression routines.
