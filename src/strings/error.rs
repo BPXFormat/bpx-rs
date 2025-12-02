@@ -1,4 +1,4 @@
-// Copyright (c) 2021, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -28,7 +28,8 @@
 
 use std::fmt::{Display, Formatter};
 
-use crate::{core::error::OpenError, macros::impl_err_conversion};
+use crate::core::error::OpenError;
+use crate::util::macros::impl_err_conversion;
 
 /// Represents a string section read error.
 #[derive(Debug)]

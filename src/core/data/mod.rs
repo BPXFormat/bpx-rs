@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -35,7 +35,7 @@ mod util;
 
 use std::io::{Read, Result, Seek, Write};
 
-use crate::traits::{ReadToVec, Shift, ShiftTo};
+use crate::util::traits::{ReadToVec, Shift, ShiftTo};
 
 /// Opaque variant intended to manipulate section data in the form of standard IO operations.
 pub trait SectionData: Read + Write + Seek + ReadToVec {
@@ -84,7 +84,7 @@ pub use auto::AutoSectionData;
 #[cfg(test)]
 mod tests {
     use crate::core::AutoSectionData;
-    use crate::traits::{Shift, ShiftTo};
+    use crate::util::traits::{Shift, ShiftTo};
     use std::io::{Read, Seek, SeekFrom, Write};
 
     const SEED: &str = "This is a test.";

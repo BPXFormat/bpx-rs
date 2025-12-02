@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -33,7 +33,7 @@ use std::{
 };
 
 use crate::core::SectionData;
-use crate::traits::ReadToVec;
+use crate::util::traits::ReadToVec;
 
 pub struct FileBasedSection {
     data: File,
@@ -123,7 +123,7 @@ impl SectionData for FileBasedSection {
 mod tests {
     use crate::core::data::file::FileBasedSection;
     use crate::core::SectionData;
-    use crate::traits::ReadFill;
+    use crate::util::traits::ReadFill;
     use std::io::{Seek, SeekFrom, Write};
 
     #[test]

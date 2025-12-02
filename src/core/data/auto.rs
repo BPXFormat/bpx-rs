@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -34,7 +34,7 @@ use crate::core::{
     data::{file::FileBasedSection, memory::InMemorySection},
     SectionData, DEFAULT_MEMORY_THRESHOLD,
 };
-use crate::traits::ReadToVec;
+use crate::util::traits::ReadToVec;
 
 const INIT_BUF_SIZE: usize = 512;
 

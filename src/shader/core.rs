@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -47,9 +47,8 @@ use crate::{
         SUPPORTED_VERSION,
     },
     strings::StringSection,
-    table::NamedItemTable,
 };
-
+use crate::util::table::NamedItemTable;
 use super::{CreateOptions, OpenOptions, Options, DEFAULT_MAX_DEPTH};
 
 /// A BPXS (ShaderPack).

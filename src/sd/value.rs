@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -31,10 +31,8 @@ use std::{
     string::String,
 };
 
-use crate::{
-    macros::{impl_err_conversion, named_enum},
-    sd::{error::TypeError, Array, Object},
-};
+use crate::sd::{error::TypeError, Array, Object};
+use crate::util::macros::{impl_err_conversion, named_enum};
 
 named_enum!(
     /// Represents the value type.

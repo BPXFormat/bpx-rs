@@ -1,4 +1,4 @@
-// Copyright (c) 2021, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -34,13 +34,11 @@ use libz_sys::{
     Z_VERSION_ERROR,
 };
 
-use crate::{
-    core::{
-        compression::{Checksum, Deflater, Inflater},
-        error::{DeflateError, InflateError},
-    },
-    traits::ReadFill,
+use crate::core::{
+    compression::{Checksum, Deflater, Inflater},
+    error::{DeflateError, InflateError},
 };
+use crate::util::traits::ReadFill;
 
 const ENCODER_BUF_SIZE: usize = 8192;
 const DECODER_BUF_SIZE: usize = ENCODER_BUF_SIZE * 2;

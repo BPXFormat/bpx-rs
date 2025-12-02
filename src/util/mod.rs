@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -26,77 +26,14 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! Contains an implementation of the BPXSD hashing function.
+//! Contains various utilities to be used by other modules.
 
-use std::{
-    fmt::{Display, Formatter},
-    num::Wrapping,
-};
+mod base;
+pub mod traits;
+pub(crate) mod garraylen;
+pub mod macros;
+pub mod hash;
+#[cfg(feature = "table")]
+pub mod table;
 
-/// Convenient utility to wrap object property name hashes.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub struct Name(u64);
-
-impl Display for Name {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
-    }
-}
-
-impl Name {
-    /// Returns the underlying hash code.
-    pub fn into_inner(self) -> u64 {
-        self.0
-    }
-}
-
-impl From<u64> for Name {
-    fn from(hash: u64) -> Self {
-        Self(hash)
-    }
-}
-
-impl<'a> From<&'a str> for Name {
-    fn from(s: &'a str) -> Self {
-        Self(hash(s))
-    }
-}
-
-impl<'a> From<&'a String> for Name {
-    fn from(s: &'a String) -> Self {
-        Self(hash(s.as_ref()))
-    }
-}
-
-impl From<String> for Name {
-    fn from(s: String) -> Self {
-        Self(hash(s.as_ref()))
-    }
-}
-
-/// Hash text using the hash function defined in the BPX specification for strings.
-///
-/// # Arguments
-///
-/// * `s`: the string to compute the hash of.
-///
-/// returns: u64
-///
-/// # Examples
-///
-/// ```
-/// use bpx::hash::hash;
-///
-/// let s = "MyString";
-/// assert_eq!(hash(s), hash("MyString"));
-/// assert_eq!(hash(s), hash(s));
-/// assert_ne!(hash(s), hash("Wrong"));
-/// ```
-pub fn hash(s: &str) -> u64 {
-    let mut val: Wrapping<u64> = Wrapping(5381);
-
-    for v in s.as_bytes() {
-        val = ((val << 5) + val) + Wrapping(*v as u64);
-    }
-    val.0
-}
+pub use base::*;

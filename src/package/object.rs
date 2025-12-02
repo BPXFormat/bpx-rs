@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -31,9 +31,9 @@
 use crate::{
     core::header::Struct,
     package::error::{EosContext, Error},
-    table::Item,
 };
 use bytesutil::{ReadBytes, WriteBytes};
+use crate::util::table::Item;
 
 /// Size in bytes of an object header.
 pub const SIZE_OBJECT_HEADER: usize = 20;

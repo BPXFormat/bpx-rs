@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -35,8 +35,8 @@ use crate::{
         Container, Handle, SectionData,
     },
     package::{Architecture, Platform, Result, Settings, SECTION_TYPE_DATA},
-    traits::ReadFill,
 };
+use crate::util::traits::ReadFill;
 
 const DATA_WRITE_BUFFER_SIZE: usize = 8192;
 const MIN_DATA_REMAINING_SIZE: usize = DATA_WRITE_BUFFER_SIZE;

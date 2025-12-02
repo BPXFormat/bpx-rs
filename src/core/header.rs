@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -37,10 +37,10 @@ use crate::{
         error::Error,
         options::{Checksum, CompressionMethod},
     },
-    garraylen::*,
-    traits::ReadFill,
+    util::garraylen::*,
     util::RecoverableError,
 };
+use crate::util::traits::ReadFill;
 
 /// Represents a serializable and deserializable byte structure in a BPX.
 pub trait Struct<const S: usize> {

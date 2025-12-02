@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -35,8 +35,8 @@ use crate::{
         object::ObjectHeader,
         Architecture, Platform, Result,
     },
-    table::NamedItemTable,
 };
+use crate::util::table::NamedItemTable;
 
 const DATA_READ_BUFFER_SIZE: usize = 8192;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -37,8 +37,8 @@ use crate::{
         error::{EosContext, Error, InvalidCodeContext},
         Stage,
     },
-    table::Item,
 };
+use crate::util::table::Item;
 
 /// Indicates this symbol is used on the vertex stage.
 pub const FLAG_VERTEX_STAGE: u16 = 0x1;

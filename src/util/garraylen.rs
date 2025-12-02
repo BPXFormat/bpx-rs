@@ -26,25 +26,14 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
-#![warn(missing_docs)]
+use std::mem::MaybeUninit;
 
-//! This library is the official implementation for the [BPX](https://gitlab.com/bp3d/bpx/bpx/-/blob/rev2/BPX_Format.pdf) container format.
-
-pub mod core;
-pub mod util;
-
-#[cfg(feature = "sd")]
-pub mod sd;
-
-#[cfg(feature = "strings")]
-pub mod strings;
-
-#[cfg(feature = "package")]
-pub mod package;
-
-#[cfg(feature = "shader")]
-pub mod shader;
-
-#[cfg(feature = "buf")]
-pub mod buf;
+pub fn extract_slice<T: Sized + Copy, const D: usize>(large_buf: &[T], offset: usize) -> [T; D] {
+    unsafe {
+        let mut arr: [MaybeUninit<T>; D] = MaybeUninit::uninit().assume_init();
+        for (i, val) in arr.iter_mut().enumerate() {
+            val.write(large_buf[offset + i]);
+        }
+        std::mem::transmute_copy(&arr)
+    }
+}

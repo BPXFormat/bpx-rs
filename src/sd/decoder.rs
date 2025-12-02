@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -29,10 +29,8 @@
 use bytesutil::ReadBytes;
 use std::io::Read;
 
-use crate::{
-    sd::{error::Error, value::Type, Array, Object, Result, Value},
-    traits::ReadFill,
-};
+use crate::sd::{error::Error, value::Type, Array, Object, Result, Value};
+use crate::util::traits::ReadFill;
 
 fn read_bool<TRead: Read>(stream: &mut TRead, _: &mut usize) -> Result<Value> {
     let mut flag: [u8; 1] = [0; 1];

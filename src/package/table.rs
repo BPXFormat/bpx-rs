@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -38,8 +38,8 @@ use crate::{
         Result,
     },
     strings::{load_string_section, StringSection},
-    table::NamedItemTable,
 };
+use crate::util::table::NamedItemTable;
 
 pub struct ObjectTable {
     strings: StringSection,

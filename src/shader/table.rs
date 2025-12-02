@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -31,7 +31,7 @@ use std::ops::Index;
 
 use elsa::FrozenMap;
 
-use crate::traits::ReadToVec;
+use crate::util::traits::ReadToVec;
 use crate::{
     core::{
         options::{Checksum, CompressionMethod, SectionOptions},
@@ -44,8 +44,8 @@ use crate::{
         Result, Shader, Stage, SECTION_TYPE_EXTENDED_DATA, SECTION_TYPE_SHADER,
     },
     strings::{load_string_section, StringSection},
-    table::NamedItemTable,
 };
+use crate::util::table::NamedItemTable;
 
 pub struct SymbolTable {
     strings: StringSection,

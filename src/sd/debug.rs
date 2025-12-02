@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -30,10 +30,8 @@
 
 use std::{borrow::Cow, collections::HashMap, convert::TryInto};
 
-use crate::{
-    hash::Name,
-    sd::{error::TypeError, Array, Object, Value},
-};
+use crate::sd::{error::TypeError, Array, Object, Value};
+use crate::util::hash::Name;
 
 /// A BPXSD object debugger iterator.
 pub struct Iter<'a> {
@@ -136,7 +134,7 @@ impl<'a> Debugger<'a> {
     ///
     /// ```
     /// use bpx::sd::{Object, debug::Debugger};
-    /// use bpx::hash::hash;
+    /// use bpx::util::hash::hash;
     ///
     /// let debugger = Debugger::attach(Object::new()).unwrap();
     /// assert!(debugger.lookup("Test").is_none());

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -35,13 +35,11 @@ use lzma_sys::{
     LZMA_STREAM_END, LZMA_UNSUPPORTED_CHECK,
 };
 
-use crate::{
-    core::{
-        compression::{Checksum, Deflater, Inflater},
-        error::{DeflateError, InflateError},
-    },
-    traits::ReadFill,
+use crate::core::{
+    compression::{Checksum, Deflater, Inflater},
+    error::{DeflateError, InflateError},
 };
+use crate::util::traits::ReadFill;
 
 const THREADS_MAX: u32 = 8;
 const ENCODER_BUF_SIZE: usize = 8192;

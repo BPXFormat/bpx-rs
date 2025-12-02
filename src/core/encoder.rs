@@ -1,4 +1,4 @@
-// Copyright (c) 2024, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -36,22 +36,20 @@ use std::{
 
 use crate::core::header::SectionHeader;
 use crate::core::SectionInfo;
-use crate::{
-    core::{
-        compression::{
-            Checksum, Crc32Checksum, Deflater, WeakChecksum, XzCompressionMethod,
-            ZlibCompressionMethod,
-        },
-        error::{Error, OpenError},
-        header::{
-            GetChecksum, MainHeader, Struct, FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ,
-            FLAG_COMPRESS_ZLIB, SIZE_MAIN_HEADER, SIZE_SECTION_HEADER,
-        },
-        section::SectionEntry,
-        Result, SectionData,
+use crate::core::{
+    compression::{
+        Checksum, Crc32Checksum, Deflater, WeakChecksum, XzCompressionMethod,
+        ZlibCompressionMethod,
     },
-    traits::ReadFill,
+    error::{Error, OpenError},
+    header::{
+        GetChecksum, MainHeader, Struct, FLAG_CHECK_CRC32, FLAG_CHECK_WEAK, FLAG_COMPRESS_XZ,
+        FLAG_COMPRESS_ZLIB, SIZE_MAIN_HEADER, SIZE_SECTION_HEADER,
+    },
+    section::SectionEntry,
+    Result, SectionData,
 };
+use crate::util::traits::ReadFill;
 
 const READ_BLOCK_SIZE: usize = 8192;
 

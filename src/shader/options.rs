@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -26,11 +26,8 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use crate::{
-    macros::{create_options, open_options},
-    shader::{Target, Type},
-};
-
+use crate::shader::{Target, Type};
+use crate::util::macros::{create_options, open_options};
 use super::DEFAULT_MAX_DEPTH;
 
 /// The required settings to create a new BPXS.

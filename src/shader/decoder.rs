@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -35,8 +35,8 @@ use crate::{
         symbol::{Symbol, SIZE_SYMBOL_STRUCTURE},
         Result, Stage, Target, Type,
     },
-    table::NamedItemTable,
 };
+use crate::util::table::NamedItemTable;
 
 pub fn get_target_type_from_code(acode: u8, tcode: u8) -> Result<(Target, Type)> {
     let target;

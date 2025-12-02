@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -30,7 +30,8 @@
 
 use std::fmt::{Display, Formatter};
 
-use crate::{macros::impl_err_conversion, sd::value::Type};
+use crate::sd::value::Type;
+use crate::util::macros::impl_err_conversion;
 
 /// Represents a structured data read error
 #[derive(Debug)]

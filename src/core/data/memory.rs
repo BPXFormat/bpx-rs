@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -28,7 +28,7 @@
 
 use std::io::{Cursor, Read, Result, Seek, SeekFrom, Write};
 
-use crate::traits::ReadToVec;
+use crate::util::traits::ReadToVec;
 use crate::{core::SectionData, util::new_byte_buf};
 
 pub struct InMemorySection {
@@ -104,7 +104,7 @@ impl SectionData for InMemorySection {
 mod tests {
     use crate::core::data::memory::InMemorySection;
     use crate::core::SectionData;
-    use crate::traits::ReadFill;
+    use crate::util::traits::ReadFill;
     use std::io::{Seek, SeekFrom, Write};
 
     #[test]

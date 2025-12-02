@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -27,11 +27,10 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use crate::{
-    macros::{create_options, open_options},
     package::{Architecture, Platform},
     sd::Value,
 };
-
+use crate::util::macros::{create_options, open_options};
 use super::DEFAULT_MAX_DEPTH;
 
 /// The required settings to create a new BPXP.
