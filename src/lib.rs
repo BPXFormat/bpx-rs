@@ -48,3 +48,6 @@ pub mod shader;
 
 #[cfg(feature = "buf")]
 pub mod buf;
+
+#[cfg(feature = "table")]
+pub mod table;

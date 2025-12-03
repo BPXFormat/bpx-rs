@@ -26,18 +26,6 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! Contains various utilities to be used by other modules.
+//! This module contains an implementation of the BPX Table section format.
 
-pub(crate) mod garraylen;
 
-pub mod traits;
-
-pub mod macros;
-
-pub mod hash;
-
-#[cfg(feature = "util-table")]
-pub mod table;
-
-mod base;
-pub use base::*;

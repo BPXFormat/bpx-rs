@@ -36,10 +36,10 @@ once_cell = { version = "1.21.3", optional = true }
 debug-log = []
 
 # Enables decoding and encoding of BPXP.
-package = ["sd", "table"]
+package = ["sd", "util-table"]
 
 # Enables decoding and encoding of BPXS.
-shader = ["sd", "table"]
+shader = ["sd", "util-table"]
 
 # Enables BPXSD.
 sd = []
@@ -51,7 +51,9 @@ sd-formatting = ["sd"]
 strings = ["elsa"]
 
 # Enable named table helpers.
-table = ["strings", "once_cell"]
+util-table = ["strings", "once_cell"]
+
+table = ["strings"]
 
 buf = []
 
