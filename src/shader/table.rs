@@ -265,7 +265,7 @@ impl<T: Read + Seek> SymbolTableRef<'_, T> {
     ///
     /// # Errors
     ///
-    /// If the name is not already loaded, returns an [Error](crate::package::error::Error)
+    /// If the name is not already loaded, returns an [Error](Error)
     /// if the section couldn't be loaded or the string couldn't be loaded.
     pub fn load_name(&self, sym: &Symbol) -> Result<&str> {
         self.table.load_name(self.container, sym)

@@ -26,6 +26,24 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! This module contains an implementation of the BPX Table section format.
+use crate::core::{Container, Handle};
+use crate::strings::StringSection;
+use crate::table::error::Error;
+
+pub struct Table {
+    table: Handle,
+    strings: StringSection
+}
+
+impl Table {
+    pub fn open<T>(container: &Container<T>, table: Handle, strings: Handle) -> Result<Self, Error> {
+        let tbl_data = container.sections().open(table)?;
+
+        Ok(Self {
+            table,
+            strings: StringSection::new(strings)
+        })
+    }
 
 
+}
