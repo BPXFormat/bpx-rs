@@ -29,6 +29,7 @@
 use crate::core::error::OpenError;
 use crate::impl_err_conversion;
 
+#[derive(Debug)]
 pub enum Error {
     /// Indicates an invalid column type code.
     InvalidCode,
@@ -45,12 +46,16 @@ pub enum Error {
 
     /// A strings error.
     Strings(crate::strings::Error),
+
+    /// Low-level BPX error.
+    Bpx(crate::core::error::Error)
 }
 
 impl_err_conversion!(
     Error {
         std::io::Error => Io,
         OpenError => Open,
-        crate::strings::Error => Strings
+        crate::strings::Error => Strings,
+        crate::core::error::Error => Bpx
     }
 );

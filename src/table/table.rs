@@ -29,12 +29,12 @@
 use std::io::{Read, Seek};
 use std::ops::Index;
 use crate::core::Container;
-use crate::strings::StringSection;
+use crate::strings::{load_string_section, StringSection};
 use crate::table::column::{Column, Type};
 use crate::util::table::NamedItemTable;
 
 pub struct ColumnTable {
-    strings: StringSection,
+    pub(super) strings: StringSection,
     table: NamedItemTable<Column>
 }
 
@@ -58,7 +58,7 @@ impl ColumnTable {
         self.table.len()
     }
 
-    pub fn create<T>(&mut self, container: &mut Container<T>, name: &str, ty: Type, len: u16) -> crate::table::Result<usize> {
+    pub fn create<T>(&mut self, container: &Container<T>, name: &str, ty: Type, len: u16) -> crate::table::Result<usize> {
         let address = self.strings.put(container, name)?;
         let buf = Column {
             name: address,
@@ -87,6 +87,7 @@ impl ColumnTable {
         container: &Container<T>,
         column: &Column,
     ) -> crate::table::Result<&str> {
+        load_string_section(container, &self.strings)?;
         let name = self.table.load_name(container, &self.strings, column)?;
         Ok(name)
     }
@@ -96,6 +97,7 @@ impl ColumnTable {
         container: &Container<T>,
         name: &str,
     ) -> crate::table::Result<Option<&Column>> {
+        load_string_section(container, &self.strings)?;
         let name = self.table.find_by_name(container, &self.strings, name)?;
         Ok(name)
     }
@@ -205,7 +207,7 @@ impl<T: Read + Seek> ColumnTableRef<'_, T> {
 
 /// Mutable guard to the table of all columns in a BPX Table Section.
 pub struct ColumnTableMut<'a, T> {
-    pub(crate) container: &'a mut Container<T>,
+    pub(crate) container: &'a Container<T>,
     pub(crate) table: &'a mut ColumnTable,
 }
 

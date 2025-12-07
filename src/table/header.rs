@@ -26,12 +26,42 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! This module contains an implementation of the BPX Table section format.
+use bytesutil::{ReadBytes, WriteBytes};
+use crate::core::header::Struct;
+use crate::table::error::Error;
 
-mod core;
-mod error;
-mod column;
-mod table;
-mod header;
+pub const HEADER_SIZE: usize = 8;
 
-pub type Result<T> = std::result::Result<T, error::Error>;
+pub struct Header {
+    pub name: u32,
+    pub columns: u16
+}
+
+impl Struct<HEADER_SIZE> for Header {
+    type Output = Header;
+    type Error = Error;
+
+    fn new() -> Self {
+        Header {
+            name: 0,
+            columns: 0
+        }
+    }
+
+    fn error_buffer_size() -> Option<Self::Error> {
+        Some(Error::Eos)
+    }
+
+    fn from_bytes(buffer: [u8; HEADER_SIZE]) -> Result<Self::Output, Self::Error> {
+        let name = u32::read_bytes_le(&buffer[0..4]);
+        let columns = u16::read_bytes_le(&buffer[4..6]);
+        Ok(Header { name, columns })
+    }
+
+    fn to_bytes(&self) -> [u8; HEADER_SIZE] {
+        let mut buffer = [0; HEADER_SIZE];
+        self.name.write_bytes_be(&mut buffer[0..4]);
+        self.columns.write_bytes_be(&mut buffer[4..6]);
+        buffer
+    }
+}

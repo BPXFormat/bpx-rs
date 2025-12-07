@@ -96,7 +96,8 @@ pub struct Column {
 }
 
 impl Column {
-    pub fn get_size_bytes(&self) -> usize {
+    /// Returns the size in bytes of this column in a row.
+    pub fn get_size(&self) -> usize {
         let init = match self.ty {
             Type::Null => 0,
             Type::Boolean => 1,
