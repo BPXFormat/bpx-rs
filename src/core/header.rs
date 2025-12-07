@@ -161,6 +161,9 @@ pub const SECTION_TYPE_STRING: u8 = 0xFF;
 /// The standard variant for a BPX Structured Data section.
 pub const SECTION_TYPE_SD: u8 = 0xFE;
 
+/// The standard variant for a BPX Table section.
+pub const SECTION_TYPE_TABLE: u8 = 0xFD;
+
 /// The BPX version this crate supports.
 pub const BPX_CURRENT_VERSION: u32 = 0x2;
 
