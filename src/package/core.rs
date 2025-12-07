@@ -185,13 +185,7 @@ impl<T> TryFrom<(Container<T>, Options)> for Package<T> {
                         .compression(CompressionMethod::Zlib)
                         .ty(SECTION_TYPE_OBJECT_TABLE),
                 );
-                let string_section = container.sections_mut().create(
-                    SectionOptions::default()
-                        .checksum(Checksum::Weak)
-                        .compression(CompressionMethod::Zlib)
-                        .ty(SECTION_TYPE_STRING),
-                );
-                let strings = StringSection::new(string_section);
+                let strings = StringSection::create(&mut container);
                 let (a, p) = get_arch_platform_from_code(
                     container.main_header().type_ext[0],
                     container.main_header().type_ext[1],
@@ -260,13 +254,7 @@ impl<T: Write + Seek> Package<T> {
                 .compression(CompressionMethod::Zlib)
                 .ty(SECTION_TYPE_OBJECT_TABLE),
         );
-        let string_section = container.sections_mut().create(
-            SectionOptions::default()
-                .checksum(Checksum::Weak)
-                .compression(CompressionMethod::Zlib)
-                .ty(SECTION_TYPE_STRING),
-        );
-        let strings = StringSection::new(string_section);
+        let strings = StringSection::create(&mut container);
         if let Some(metadata) = &settings.metadata {
             if !metadata.is_null() {
                 let metadata_section = container.sections_mut().create(

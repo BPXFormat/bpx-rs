@@ -1,4 +1,4 @@
-// Copyright (c) 2023, BlockProject 3D
+// Copyright (c) 2025, BlockProject 3D
 //
 // All rights reserved.
 //
@@ -41,6 +41,8 @@ use elsa::FrozenMap;
 pub use error::{Error, PathError};
 
 use crate::core::{AutoSectionData, Container, Handle, SectionData};
+use crate::core::header::SECTION_TYPE_STRING;
+use crate::core::options::{Checksum, CompressionMethod, SectionOptions};
 
 /// Helper class to manage a BPX string section.
 ///
@@ -65,6 +67,23 @@ pub struct StringSection {
 }
 
 impl StringSection {
+    /// Creates a new string section in the given BPX container.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the BPX container.
+    ///
+    /// returns: StringSection
+    pub fn create<T>(container: &mut Container<T>) -> Self {
+        let handle = container.sections_mut().create(
+            SectionOptions::default()
+                .checksum(Checksum::Weak)
+                .compression(CompressionMethod::Zlib)
+                .ty(SECTION_TYPE_STRING),
+        );
+        Self::new(handle)
+    }
+
     /// Create a new string section from a handle.
     ///
     /// # Arguments

@@ -223,19 +223,13 @@ impl<T> TryFrom<(Container<T>, Options)> for ShaderPack<T> {
             false => {
                 container.main_header_mut().ty = b'S';
                 container.main_header_mut().version = SUPPORTED_VERSION;
-                let string_section = container.sections_mut().create(
-                    SectionOptions::default()
-                        .checksum(Checksum::Weak)
-                        .compression(CompressionMethod::Zlib)
-                        .ty(SECTION_TYPE_STRING),
-                );
                 let symbol_table = container.sections_mut().create(
                     SectionOptions::default()
                         .checksum(Checksum::Weak)
                         .compression(CompressionMethod::Zlib)
                         .ty(SECTION_TYPE_SYMBOL_TABLE),
                 );
-                let strings = StringSection::new(string_section);
+                let strings = StringSection::create(&mut container);
                 let (target, ty) = get_target_type_from_code(
                     container.main_header().type_ext[10],
                     container.main_header().type_ext[11],
@@ -296,19 +290,13 @@ impl<T: Write + Seek> ShaderPack<T> {
                 .type_ext(get_type_ext(&settings))
                 .version(SUPPORTED_VERSION),
         );
-        let string_section = container.sections_mut().create(
-            SectionOptions::default()
-                .checksum(Checksum::Weak)
-                .compression(CompressionMethod::Zlib)
-                .ty(SECTION_TYPE_STRING),
-        );
         let symbol_table = container.sections_mut().create(
             SectionOptions::default()
                 .checksum(Checksum::Weak)
                 .compression(CompressionMethod::Zlib)
                 .ty(SECTION_TYPE_SYMBOL_TABLE),
         );
-        let strings = StringSection::new(string_section);
+        let strings = StringSection::create(&mut container);
         Self {
             container,
             settings,
