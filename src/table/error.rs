@@ -26,9 +26,13 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+//! Error definition.
+
+use std::fmt::{Display, Formatter};
 use crate::core::error::OpenError;
 use crate::impl_err_conversion;
 
+/// The error type.
 #[derive(Debug)]
 pub enum Error {
     /// Indicates an invalid column type code.
@@ -48,7 +52,13 @@ pub enum Error {
     Strings(crate::strings::Error),
 
     /// Low-level BPX error.
-    Bpx(crate::core::error::Error)
+    Bpx(crate::core::error::Error),
+
+    /// Row index out of bounds.
+    RowIndexOutOfBounds(usize),
+
+    /// A column with the specified name could not be found.
+    ColumnNotFound(String),
 }
 
 impl_err_conversion!(
@@ -59,3 +69,18 @@ impl_err_conversion!(
         crate::core::error::Error => Bpx
     }
 );
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::InvalidCode => write!(f, "invalid data type code"),
+            Error::Eos => write!(f, "got unexpected EOS"),
+            Error::Io(e) => write!(f, "io error: {}", e),
+            Error::Open(e) => write!(f, "section open error: {}", e),
+            Error::Strings(e) => write!(f, "strings error: {}", e),
+            Error::Bpx(e) => write!(f, "BPX error: {}", e),
+            Error::RowIndexOutOfBounds(i) => write!(f, "row index out of bounds ({})", i),
+            Error::ColumnNotFound(name) => write!(f, "column name not found ({})", name)
+        }
+    }
+}

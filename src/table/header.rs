@@ -26,18 +26,25 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+//! Table header definition.
+
 use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::header::Struct;
 use crate::table::error::Error;
 
-pub const HEADER_SIZE: usize = 8;
+/// Size in bytes of a table header structure.
+pub const SIZE_HEADER_STRUCTURE: usize = 8;
 
+/// Table header structure.
 pub struct Header {
+    /// The address of this table name in the string section.
     pub name: u32,
+
+    /// The number of columns in this table section.
     pub columns: u16
 }
 
-impl Struct<HEADER_SIZE> for Header {
+impl Struct<SIZE_HEADER_STRUCTURE> for Header {
     type Output = Header;
     type Error = Error;
 
@@ -52,14 +59,14 @@ impl Struct<HEADER_SIZE> for Header {
         Some(Error::Eos)
     }
 
-    fn from_bytes(buffer: [u8; HEADER_SIZE]) -> Result<Self::Output, Self::Error> {
+    fn from_bytes(buffer: [u8; SIZE_HEADER_STRUCTURE]) -> Result<Self::Output, Self::Error> {
         let name = u32::read_bytes_le(&buffer[0..4]);
         let columns = u16::read_bytes_le(&buffer[4..6]);
         Ok(Header { name, columns })
     }
 
-    fn to_bytes(&self) -> [u8; HEADER_SIZE] {
-        let mut buffer = [0; HEADER_SIZE];
+    fn to_bytes(&self) -> [u8; SIZE_HEADER_STRUCTURE] {
+        let mut buffer = [0; SIZE_HEADER_STRUCTURE];
         self.name.write_bytes_be(&mut buffer[0..4]);
         self.columns.write_bytes_be(&mut buffer[4..6]);
         buffer

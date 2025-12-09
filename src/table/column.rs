@@ -26,6 +26,8 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+//! Column structure definition.
+
 use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::header::Struct;
 use crate::table::error::Error;
@@ -34,20 +36,46 @@ use crate::util::table::Item;
 /// Size in bytes of a column structure.
 pub const SIZE_COLUMN_STRUCTURE: usize = 8;
 
+/// Column data type.
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Type {
+    /// A null value with a size of 0.
     Null,
+
+    /// A boolean value with a size of 1.
     Boolean,
+
+    /// An unsigned value with a size of 1.
     Uint8,
+
+    /// An unsigned value with a size of 2.
     Uint16,
+
+    /// An unsigned value with a size of 4.
     Uint32,
+
+    /// An unsigned value with a size of 8.
     Uint64,
+
+    /// A signed value with a size of 1.
     Int8,
+
+    /// A signed value with a size of 2.
     Int16,
+
+    /// A signed value with a size of 4.
     Int32,
+
+    /// A signed value with a size of 8.
     Int64,
+
+    /// An IEEE-754 single-precision floating point.
     Float,
+
+    /// An IEEE-754 double-precision floating point.
     Double,
+
+    /// A character type which represents a single byte of UTF-8 data.
     Varchar
 }
 
@@ -88,10 +116,16 @@ fn get_type_from_code(scode: u8) -> Result<Type, Error> {
     }
 }
 
+/// Column header structure.
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Column {
+    /// The address of this column name in the string section.
     pub name: u32,
+
+    /// The data type.
     pub ty: Type,
+
+    /// The array length, a value of 1 represents no array.
     pub len: u16
 }
 

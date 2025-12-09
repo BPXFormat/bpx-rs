@@ -26,17 +26,21 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::io::{Read, Seek, SeekFrom, Write};
+//! The core BPX Table section implementation.
+
+use std::io::{Read, Seek, SeekFrom};
 use crate::core::{Container, Handle};
 use crate::core::header::{Struct, SECTION_TYPE_TABLE};
 use crate::core::options::{Checksum, CompressionMethod, SectionOptions};
 use crate::strings::{load_string_section, StringSection};
-use crate::table::column::Column;
+use crate::table::column::{Column, SIZE_COLUMN_STRUCTURE};
 use crate::table::error::Error;
-use crate::table::header::Header;
+use crate::table::header::{Header, SIZE_HEADER_STRUCTURE};
+use crate::table::row::{ColumnPos, Row};
 use crate::table::table::{ColumnTable, ColumnTableMut, ColumnTableRef};
 use crate::util::table::NamedItemTable;
 
+/// The core table type.
 pub struct Table {
     handle: Handle,
     header: Header,
@@ -44,6 +48,19 @@ pub struct Table {
 }
 
 impl Table {
+    /// Opens a BPX [Table] section.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container in which the section is.
+    /// * `handle`: a handle to the table section.
+    /// * `strings`: a handle to the strings section to use.
+    ///
+    /// returns: Result<Table, Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the table section header could not be loaded.
     pub fn open<T: Read + Seek>(container: &Container<T>, handle: Handle, strings: Handle) -> Result<Self, Error> {
         let (header, col_table) = load_column_table(container, handle, strings)?;
         Ok(Self {
@@ -53,6 +70,18 @@ impl Table {
         })
     }
 
+    /// Loads the name of this table from the string section.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    ///
+    /// returns: Result<&str, Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the string section failed to load or if the name failed to load from
+    /// the string section.
     pub fn load_name<T: Read + Seek>(&self, container: &Container<T>) -> Result<&str, Error> {
         load_string_section(container, &self.col_table.strings)?;
         Ok(self.col_table.strings.get(container, self.header.name)?)
@@ -64,6 +93,19 @@ impl Table {
         Ok(())
     }
 
+    /// Creates a BPX [Table] section.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which should own the table section.
+    /// * `name`: the name of the table.
+    /// * `strings`: the string section associated with this table section.
+    ///
+    /// returns: Result<Table, Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the table name could not be written to the strings section.
     pub fn create<T>(container: &mut Container<T>, name: &str, strings: Handle) -> Result<Self, Error> {
         let handle = container.sections_mut().create(SectionOptions::default()
             .ty(SECTION_TYPE_TABLE)
@@ -74,7 +116,7 @@ impl Table {
         Ok(tbl)
     }
 
-    pub fn new(handle: Handle, strings: Handle) -> Self {
+    fn new(handle: Handle, strings: Handle) -> Self {
         Self {
             handle,
             header: Header::new(),
@@ -82,6 +124,17 @@ impl Table {
         }
     }
 
+    /// Saves the table header.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    ///
+    /// returns: Result<(), Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the header could not be written to the section.
     pub fn save<T>(&mut self, container: &Container<T>) -> Result<(), Error> {
         let mut tbl_data = container.sections().open(self.handle)?;
         tbl_data.seek(SeekFrom::Start(0))?;
@@ -93,6 +146,13 @@ impl Table {
         Ok(())
     }
 
+    /// Returns a mutable handle to the column header table.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    ///
+    /// returns: ColumnTableMut<T>
     pub fn columns_mut<'a, T>(&'a mut self, container: &'a Container<T>) -> ColumnTableMut<'a, T> {
         ColumnTableMut {
             container,
@@ -100,6 +160,13 @@ impl Table {
         }
     }
 
+    /// Returns an immutable handle to the column header table.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    ///
+    /// returns: ColumnTableMut<T>
     pub fn columns<'a, T>(&'a self, container: &'a Container<T>) -> ColumnTableRef<'a, T> {
         ColumnTableRef {
             container,
@@ -129,6 +196,50 @@ impl Table {
     /// Returns the section handle.
     pub fn handle(&self) -> Handle {
         self.handle
+    }
+
+    /// Returns the [ColumnPos] structure associated with the given column from its name.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    /// * `name`: the name of the column to find.
+    ///
+    /// returns: Result<ColumnPos, Error>
+    ///
+    /// # Errors
+    ///
+    /// An [Error] is returned if the string section could not be loaded, if a column name failed
+    /// to load from the string section or if no column exists for the given name.
+    pub fn get_column_pos<T: Read + Seek>(&self, container: &Container<T>, name: &str) -> Result<ColumnPos, Error> {
+        let column = self.col_table.find(container, name)?;
+        match column {
+            Some(value) => {
+                let mut offset = 0;
+                for column in &self.col_table {
+                    if column == value {
+                        break;
+                    }
+                    offset += column.get_size();
+                }
+                Ok(ColumnPos {
+                    offset,
+                    len: value.get_size()
+                })
+            },
+            None => Err(Error::ColumnNotFound(name.into()))
+        }
+    }
+
+    /// Creates a [Row] structure that fits this table definition.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the size of a single row according to this table definition is 0
+    /// (i.e. [get_row_size](Self::get_row_size) returned 0).
+    pub fn create_row(&self) -> Row {
+        assert!(self.get_row_size() > 0);
+        Row::new(SIZE_HEADER_STRUCTURE + (self.col_table.len() * SIZE_COLUMN_STRUCTURE), self.get_row_size(), self.get_actual_row_size())
     }
 }
 
