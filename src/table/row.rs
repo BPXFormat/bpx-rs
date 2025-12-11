@@ -55,7 +55,6 @@ impl RawRow {
         self.data[self.size] == 1
     }
 
-
     /// Sets the free flag for this row.
     ///
     /// # Arguments
