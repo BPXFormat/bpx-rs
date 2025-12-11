@@ -37,7 +37,7 @@ use crate::util::table::Item;
 pub const SIZE_COLUMN_STRUCTURE: usize = 8;
 
 /// Column data type.
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum Type {
     /// A null value with a size of 0.
     Null,

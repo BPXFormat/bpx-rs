@@ -224,7 +224,8 @@ impl Table {
                 }
                 Ok(ColumnPos {
                     offset,
-                    len: value.get_size()
+                    len: value.get_size(),
+                    ty: value.ty
                 })
             },
             None => Err(Error::ColumnNotFound(name.into()))

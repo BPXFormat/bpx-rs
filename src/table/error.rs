@@ -84,3 +84,20 @@ impl Display for Error {
         }
     }
 }
+
+/// An error that can arise when reading/writing values in cells.
+#[derive(Debug)]
+pub enum ValueError {
+    /// Attempt to read/write a null value type.
+    Null,
+
+    /// Incompatible value type.
+    IncompatibleType,
+
+    /// Value would overflow/truncate when read/written from/to the cell.
+    Overflow,
+
+    /// The column data type is a [Varchar](crate::table::column::Type::Varchar) and contains
+    /// invalid UTF-8 bytes.
+    Utf8(std::str::Utf8Error)
+}

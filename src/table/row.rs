@@ -29,9 +29,10 @@
 //! Row definition.
 
 use std::io::SeekFrom;
-use std::ops::{Index, IndexMut};
+use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::SectionData;
-use crate::table::error::Error;
+use crate::table::column::Type;
+use crate::table::error::{Error, ValueError};
 
 /// A pre-allocated row structure.
 pub struct Row {
@@ -144,19 +145,21 @@ impl Row {
         section.write_all(&self.data)?;
         Ok(index)
     }
-}
 
-impl Index<ColumnPos> for Row {
-    type Output = [u8];
-
-    fn index(&self, index: ColumnPos) -> &Self::Output {
-        &self.data[index.offset..index.offset + index.len]
+    /// Returns an immutable handle to the cell identified by the given [ColumnPos].
+    pub fn cell(&self, pos: ColumnPos) -> CellRef<'_> {
+        CellRef {
+            data: &self.data[pos.offset..pos.offset + pos.len],
+            ty: pos.ty
+        }
     }
-}
 
-impl IndexMut<ColumnPos> for Row {
-    fn index_mut(&mut self, index: ColumnPos) -> &mut Self::Output {
-        &mut self.data[index.offset..index.offset + index.len]
+    /// Returns a mutable handle to the cell identified by the given [ColumnPos].
+    pub fn cell_mut(&mut self, pos: ColumnPos) -> CellMut<'_> {
+        CellMut {
+            data: &mut self.data[pos.offset..pos.offset + pos.len],
+            ty: pos.ty
+        }
     }
 }
 
@@ -164,5 +167,186 @@ impl IndexMut<ColumnPos> for Row {
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub struct ColumnPos {
     pub(super) offset: usize,
-    pub(super) len: usize
+    pub(super) len: usize,
+    pub(super) ty: Type
+}
+
+//FIXME: find a better API.
+
+/// Represents the value stored in a cell.
+pub trait Value<'a>: Sized {
+    /// Reads the value from the cell.
+    ///
+    /// # Arguments
+    ///
+    /// * `cell`: the cell data buffer.
+    /// * `ty`: the column data type.
+    ///
+    /// returns: Self
+    fn read(cell: &'a [u8], ty: Type) -> Result<Self, ValueError>;
+
+    /// Writes the value to the cell.
+    ///
+    /// # Arguments
+    ///
+    /// * `cell`: the cell data buffer.
+    /// * `ty`: the column data type.
+    ///
+    /// returns: ()
+    fn write(self, cell: &mut [u8], ty: Type) -> Result<(), ValueError>;
+}
+
+macro_rules! impl_integer_type {
+    ($($t: ty)*) => {
+        $(
+            impl Value<'_> for $t {
+                fn read(cell: &[u8], ty: Type) -> Result<Self, ValueError> {
+                    match ty {
+                        Type::Null => Err(ValueError::Null),
+                        Type::Uint8 => Self::try_from(u8::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint16 => Self::try_from(u16::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint32 => Self::try_from(u32::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint64 => Self::try_from(u64::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int8 => Self::try_from(i8::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int16 => Self::try_from(i16::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int32 => Self::try_from(i32::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int64 => Self::try_from(i64::read_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        _ => Err(ValueError::IncompatibleType)
+                    }
+                }
+
+                fn write(self, cell: &mut [u8], ty: Type) -> Result<(), ValueError> {
+                    match ty {
+                        Type::Null => Err(ValueError::Null),
+                        Type::Uint8 => u8::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint16 => u16::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint32 => u32::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Uint64 => u64::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int8 => i8::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int16 => i16::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int32 => i32::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        Type::Int64 => i64::try_from(self).map(|v| v.write_bytes_le(cell)).map_err(|_| ValueError::Overflow),
+                        _ => Err(ValueError::IncompatibleType)
+                    }
+                }
+            }
+        )*
+    };
+}
+
+impl_integer_type!(u8 u16 u32 u64 i8 i16 i32 i64);
+
+impl Value<'_> for bool {
+    fn read(cell: &[u8], ty: Type) -> Result<Self, ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Boolean => Ok(bool::read_bytes_le(cell)),
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+
+    fn write(self, cell: &mut [u8], ty: Type) -> Result<(), ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Boolean => {
+                self.write_bytes_le(cell);
+                Ok(())
+            },
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+}
+
+impl Value<'_> for f64 {
+    fn read(cell: &[u8], ty: Type) -> Result<Self, ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Double => Ok(f64::read_bytes_le(cell)),
+            Type::Float => Ok(f32::read_bytes_le(cell) as _),
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+
+    fn write(self, cell: &mut [u8], ty: Type) -> Result<(), ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Float => {
+                (self as f32).write_bytes_le(cell);
+                Ok(())
+            },
+            Type::Double => {
+                self.write_bytes_le(cell);
+                Ok(())
+            },
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+}
+
+impl<'a> Value<'a> for &'a str {
+    fn read(cell: &'a [u8], ty: Type) -> Result<Self, ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Varchar => std::str::from_utf8(cell).map_err(ValueError::Utf8),
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+
+    fn write(self, cell: &mut [u8], ty: Type) -> Result<(), ValueError> {
+        match ty {
+            Type::Null => Err(ValueError::Null),
+            Type::Varchar => {
+                let bytes = self.as_bytes();
+                if bytes.len() <= cell.len() {
+                    cell[..bytes.len()].copy_from_slice(bytes);
+                } else {
+                    cell.copy_from_slice(&bytes[..cell.len()]);
+                }
+                Ok(())
+            },
+            _ => Err(ValueError::IncompatibleType)
+        }
+    }
+}
+
+/// A mutable cell handle.
+pub struct CellMut<'a> {
+    data: &'a mut [u8],
+    ty: Type
+}
+
+impl CellMut<'_> {
+    /// Returns the cell bytes as a mutable refence.
+    pub fn as_bytes_mut(&mut self) -> &mut [u8] {
+        self.data
+    }
+
+    /// Writes a value into this cell.
+    ///
+    /// # Arguments
+    ///
+    /// * `value`: the value to write.
+    ///
+    /// returns: ()
+    pub fn set<'a, T: Value<'a>>(&mut self, value: T) -> Result<(), ValueError> {
+        value.write(self.data, self.ty)
+    }
+}
+
+/// An immutable cell handle.
+pub struct CellRef<'a> {
+    data: &'a [u8],
+    ty: Type
+}
+
+impl<'a> CellRef<'a> {
+    /// Returns the cell bytes as an immutable refence.
+    pub fn as_bytes(&self) -> &[u8] {
+        self.data
+    }
+
+    /// Reads a value from this cell.
+    pub fn get<T: Value<'a>>(&self) -> Result<T, ValueError> {
+        T::read(self.data, self.ty)
+    }
 }
