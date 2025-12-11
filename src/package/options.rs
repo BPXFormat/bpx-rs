@@ -26,12 +26,12 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+use super::DEFAULT_MAX_DEPTH;
+use crate::util::macros::{create_options, open_options};
 use crate::{
     package::{Architecture, Platform},
     sd::Value,
 };
-use crate::util::macros::{create_options, open_options};
-use super::DEFAULT_MAX_DEPTH;
 
 /// The required settings to create a new BPXP.
 ///

@@ -28,6 +28,7 @@
 
 use std::io::{Read, Seek, SeekFrom, Write};
 
+use crate::util::table::NamedItemTable;
 use crate::{
     core::{header::Struct, Container, Handle},
     package::{
@@ -36,7 +37,6 @@ use crate::{
         Architecture, Platform, Result,
     },
 };
-use crate::util::table::NamedItemTable;
 
 const DATA_READ_BUFFER_SIZE: usize = 8192;
 

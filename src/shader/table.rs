@@ -31,6 +31,7 @@ use std::ops::Index;
 
 use elsa::FrozenMap;
 
+use crate::util::table::NamedItemTable;
 use crate::util::traits::ReadToVec;
 use crate::{
     core::{
@@ -45,7 +46,6 @@ use crate::{
     },
     strings::{load_string_section, StringSection},
 };
-use crate::util::table::NamedItemTable;
 
 pub struct SymbolTable {
     strings: StringSection,

@@ -28,12 +28,12 @@
 
 //! Contains utilities to work with the object table section.
 
+use crate::util::table::Item;
 use crate::{
     core::header::Struct,
     package::error::{EosContext, Error},
 };
 use bytesutil::{ReadBytes, WriteBytes};
-use crate::util::table::Item;
 
 /// Size in bytes of an object header.
 pub const SIZE_OBJECT_HEADER: usize = 20;

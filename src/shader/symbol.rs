@@ -30,6 +30,7 @@
 
 use bytesutil::{ReadBytes, WriteBytes};
 
+use crate::util::table::Item;
 use crate::{
     core::header::Struct,
     sd::Value,
@@ -38,7 +39,6 @@ use crate::{
         Stage,
     },
 };
-use crate::util::table::Item;
 
 /// Indicates this symbol is used on the vertex stage.
 pub const FLAG_VERTEX_STAGE: u16 = 0x1;

@@ -40,9 +40,9 @@ use std::{
 use elsa::FrozenMap;
 pub use error::{Error, PathError};
 
-use crate::core::{AutoSectionData, Container, Handle, SectionData};
 use crate::core::header::SECTION_TYPE_STRING;
 use crate::core::options::{Checksum, CompressionMethod, SectionOptions};
+use crate::core::{AutoSectionData, Container, Handle, SectionData};
 
 /// Helper class to manage a BPX string section.
 ///

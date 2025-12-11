@@ -28,10 +28,9 @@
 
 //! The core BPX Table section implementation.
 
-use std::io::{Read, Seek, SeekFrom};
-use crate::core::{Container, Handle};
 use crate::core::header::{Struct, SECTION_TYPE_TABLE};
 use crate::core::options::{Checksum, CompressionMethod, SectionOptions};
+use crate::core::{Container, Handle};
 use crate::strings::{load_string_section, StringSection};
 use crate::table::column::{Column, SIZE_COLUMN_STRUCTURE};
 use crate::table::error::Error;
@@ -39,12 +38,13 @@ use crate::table::header::{Header, SIZE_HEADER_STRUCTURE};
 use crate::table::row::{ColumnPos, Row};
 use crate::table::table::{ColumnTable, ColumnTableMut, ColumnTableRef};
 use crate::util::table::NamedItemTable;
+use std::io::{Read, Seek, SeekFrom};
 
 /// The core table type.
 pub struct RawTable {
     handle: Handle,
     header: Header,
-    col_table: ColumnTable
+    col_table: ColumnTable,
 }
 
 impl RawTable {
@@ -61,12 +61,16 @@ impl RawTable {
     /// # Errors
     ///
     /// Returns an [Error] if the table section header could not be loaded.
-    pub fn open<T: Read + Seek>(container: &Container<T>, handle: Handle, strings: Handle) -> Result<Self, Error> {
+    pub fn open<T: Read + Seek>(
+        container: &Container<T>,
+        handle: Handle,
+        strings: Handle,
+    ) -> Result<Self, Error> {
         let (header, col_table) = load_column_table(container, handle, strings)?;
         Ok(Self {
             handle,
             header,
-            col_table
+            col_table,
         })
     }
 
@@ -106,11 +110,17 @@ impl RawTable {
     /// # Errors
     ///
     /// Returns an [Error] if the table name could not be written to the strings section.
-    pub fn create<T>(container: &mut Container<T>, name: &str, strings: Handle) -> Result<Self, Error> {
-        let handle = container.sections_mut().create(SectionOptions::default()
-            .ty(SECTION_TYPE_TABLE)
-            .compression(CompressionMethod::Xz)
-            .checksum(Checksum::Crc32));
+    pub fn create<T>(
+        container: &mut Container<T>,
+        name: &str,
+        strings: Handle,
+    ) -> Result<Self, Error> {
+        let handle = container.sections_mut().create(
+            SectionOptions::default()
+                .ty(SECTION_TYPE_TABLE)
+                .compression(CompressionMethod::Xz)
+                .checksum(Checksum::Crc32),
+        );
         let mut tbl = Self::new(handle, strings);
         tbl.set_name(container, name)?;
         Ok(tbl)
@@ -120,7 +130,7 @@ impl RawTable {
         Self {
             handle,
             header: Header::new(),
-            col_table: ColumnTable::new(NamedItemTable::empty(), StringSection::new(strings))
+            col_table: ColumnTable::new(NamedItemTable::empty(), StringSection::new(strings)),
         }
     }
 
@@ -156,7 +166,7 @@ impl RawTable {
     pub fn columns_mut<'a, T>(&'a mut self, container: &'a Container<T>) -> ColumnTableMut<'a, T> {
         ColumnTableMut {
             container,
-            table: &mut self.col_table
+            table: &mut self.col_table,
         }
     }
 
@@ -170,7 +180,7 @@ impl RawTable {
     pub fn columns<'a, T>(&'a self, container: &'a Container<T>) -> ColumnTableRef<'a, T> {
         ColumnTableRef {
             container,
-            table: &self.col_table
+            table: &self.col_table,
         }
     }
 
@@ -211,7 +221,11 @@ impl RawTable {
     ///
     /// An [Error] is returned if the string section could not be loaded, if a column name failed
     /// to load from the string section or if no column exists for the given name.
-    pub fn get_column_pos<T: Read + Seek>(&self, container: &Container<T>, name: &str) -> Result<ColumnPos, Error> {
+    pub fn get_column_pos<T: Read + Seek>(
+        &self,
+        container: &Container<T>,
+        name: &str,
+    ) -> Result<ColumnPos, Error> {
         let column = self.col_table.find(container, name)?;
         match column {
             Some(value) => {
@@ -225,10 +239,10 @@ impl RawTable {
                 Ok(ColumnPos {
                     offset,
                     len: value.get_size(),
-                    ty: value.ty
+                    ty: value.ty,
                 })
-            },
-            None => Err(Error::ColumnNotFound(name.into()))
+            }
+            None => Err(Error::ColumnNotFound(name.into())),
         }
     }
 
@@ -240,11 +254,19 @@ impl RawTable {
     /// (i.e. [get_row_size](Self::get_row_size) returned 0).
     pub fn alloc_row(&self) -> Row {
         assert!(self.get_row_size() > 0);
-        Row::new(SIZE_HEADER_STRUCTURE + (self.col_table.len() * SIZE_COLUMN_STRUCTURE), self.get_row_size(), self.get_actual_row_size())
+        Row::new(
+            SIZE_HEADER_STRUCTURE + (self.col_table.len() * SIZE_COLUMN_STRUCTURE),
+            self.get_row_size(),
+            self.get_actual_row_size(),
+        )
     }
 }
 
-fn load_column_table<T: Read + Seek>(container: &Container<T>, handle: Handle, strings: Handle) -> Result<(Header, ColumnTable), Error> {
+fn load_column_table<T: Read + Seek>(
+    container: &Container<T>,
+    handle: Handle,
+    strings: Handle,
+) -> Result<(Header, ColumnTable), Error> {
     let mut tbl_data = container.sections().load(handle)?;
     let header = Header::read(&mut *tbl_data)?;
     let strings = StringSection::new(strings);
@@ -253,5 +275,8 @@ fn load_column_table<T: Read + Seek>(container: &Container<T>, handle: Handle, s
         let column = Column::read(&mut *tbl_data)?;
         columns.push(column);
     }
-    Ok((header, ColumnTable::new(NamedItemTable::with_list(columns), strings)))
+    Ok((
+        header,
+        ColumnTable::new(NamedItemTable::with_list(columns), strings),
+    ))
 }

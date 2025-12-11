@@ -28,17 +28,17 @@
 
 //! Row definition.
 
-use std::io::SeekFrom;
-use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::SectionData;
 use crate::table::column::Type;
 use crate::table::error::{Error, ValueError};
+use bytesutil::{ReadBytes, WriteBytes};
+use std::io::SeekFrom;
 
 /// A pre-allocated row structure.
 pub struct Row {
     data: Box<[u8]>,
     size: usize,
-    header_size: usize
+    header_size: usize,
 }
 
 impl Row {
@@ -46,7 +46,7 @@ impl Row {
         Row {
             data: vec![0; actual_size].into_boxed_slice(),
             header_size,
-            size
+            size,
         }
     }
 
@@ -74,7 +74,7 @@ impl Row {
     pub fn cell(&self, pos: ColumnPos) -> CellRef<'_> {
         CellRef {
             data: &self.data[pos.offset..pos.offset + pos.len],
-            ty: pos.ty
+            ty: pos.ty,
         }
     }
 
@@ -82,7 +82,7 @@ impl Row {
     pub fn cell_mut(&mut self, pos: ColumnPos) -> CellMut<'_> {
         CellMut {
             data: &mut self.data[pos.offset..pos.offset + pos.len],
-            ty: pos.ty
+            ty: pos.ty,
         }
     }
 }
@@ -92,7 +92,7 @@ impl Row {
 pub struct ColumnPos {
     pub(super) offset: usize,
     pub(super) len: usize,
-    pub(super) ty: Type
+    pub(super) ty: Type,
 }
 
 /// Represents the value stored in a cell.
@@ -163,7 +163,7 @@ impl Value<'_> for bool {
         match ty {
             Type::Null => Err(ValueError::Null),
             Type::Boolean => Ok(bool::read_bytes_le(cell)),
-            _ => Err(ValueError::IncompatibleType)
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 
@@ -173,8 +173,8 @@ impl Value<'_> for bool {
             Type::Boolean => {
                 self.write_bytes_le(cell);
                 Ok(())
-            },
-            _ => Err(ValueError::IncompatibleType)
+            }
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 }
@@ -185,7 +185,7 @@ impl Value<'_> for f64 {
             Type::Null => Err(ValueError::Null),
             Type::Double => Ok(f64::read_bytes_le(cell)),
             Type::Float => Ok(f32::read_bytes_le(cell) as _),
-            _ => Err(ValueError::IncompatibleType)
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 
@@ -195,12 +195,12 @@ impl Value<'_> for f64 {
             Type::Float => {
                 (self as f32).write_bytes_le(cell);
                 Ok(())
-            },
+            }
             Type::Double => {
                 self.write_bytes_le(cell);
                 Ok(())
-            },
-            _ => Err(ValueError::IncompatibleType)
+            }
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 }
@@ -209,8 +209,10 @@ impl<'a> Value<'a> for &'a str {
     fn read(cell: &'a [u8], ty: Type) -> Result<Self, ValueError> {
         match ty {
             Type::Null => Err(ValueError::Null),
-            Type::Varchar => std::str::from_utf8(cell).map(|v| v.trim_matches(&['\0'])).map_err(ValueError::Utf8),
-            _ => Err(ValueError::IncompatibleType)
+            Type::Varchar => std::str::from_utf8(cell)
+                .map(|v| v.trim_matches(&['\0']))
+                .map_err(ValueError::Utf8),
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 
@@ -225,8 +227,8 @@ impl<'a> Value<'a> for &'a str {
                     cell.copy_from_slice(&bytes[..cell.len()]);
                 }
                 Ok(())
-            },
-            _ => Err(ValueError::IncompatibleType)
+            }
+            _ => Err(ValueError::IncompatibleType),
         }
     }
 }
@@ -234,7 +236,7 @@ impl<'a> Value<'a> for &'a str {
 /// A mutable cell handle.
 pub struct CellMut<'a> {
     data: &'a mut [u8],
-    ty: Type
+    ty: Type,
 }
 
 impl CellMut<'_> {
@@ -258,7 +260,7 @@ impl CellMut<'_> {
 /// An immutable cell handle.
 pub struct CellRef<'a> {
     data: &'a [u8],
-    ty: Type
+    ty: Type,
 }
 
 impl<'a> CellRef<'a> {
@@ -300,11 +302,17 @@ pub fn count<S: SectionData>(section: &S, row: &Row) -> usize {
 /// # Errors
 ///
 /// Returns an [Error] if the row data could not be read from the section.
-pub fn read<S: SectionData>(section: &mut S, row: &mut Row, index: usize) -> crate::table::Result<()> {
+pub fn read<S: SectionData>(
+    section: &mut S,
+    row: &mut Row,
+    index: usize,
+) -> crate::table::Result<()> {
     if index >= count(section, row) {
         return Err(Error::RowIndexOutOfBounds(index));
     }
-    section.seek(SeekFrom::Start((row.header_size + index * row.data.len()) as _))?;
+    section.seek(SeekFrom::Start(
+        (row.header_size + index * row.data.len()) as _,
+    ))?;
     section.read_exact(row.data.as_mut())?;
     Ok(())
 }
@@ -328,7 +336,9 @@ pub fn write<S: SectionData>(section: &mut S, row: &Row, index: usize) -> crate:
     if index >= count(section, row) {
         return Err(Error::RowIndexOutOfBounds(index));
     }
-    section.seek(SeekFrom::Start((row.header_size + index * row.data.len()) as _))?;
+    section.seek(SeekFrom::Start(
+        (row.header_size + index * row.data.len()) as _,
+    ))?;
     section.write_all(&row.data)?;
     Ok(())
 }

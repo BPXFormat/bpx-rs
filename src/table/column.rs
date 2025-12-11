@@ -28,10 +28,10 @@
 
 //! Column structure definition.
 
-use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::header::Struct;
 use crate::table::error::Error;
 use crate::util::table::Item;
+use bytesutil::{ReadBytes, WriteBytes};
 
 /// Size in bytes of a column structure.
 pub const SIZE_COLUMN_STRUCTURE: usize = 8;
@@ -76,7 +76,7 @@ pub enum Type {
     Double,
 
     /// A character type which represents a single byte of UTF-8 data.
-    Varchar
+    Varchar,
 }
 
 fn get_code_from_type(ty: Type) -> u8 {
@@ -93,7 +93,7 @@ fn get_code_from_type(ty: Type) -> u8 {
         Type::Int64 => 0x9,
         Type::Float => 0xA,
         Type::Double => 0xB,
-        Type::Varchar => 0xC
+        Type::Varchar => 0xC,
     }
 }
 
@@ -126,7 +126,7 @@ pub struct Column {
     pub ty: Type,
 
     /// The array length, a value of 1 represents no array.
-    pub len: u16
+    pub len: u16,
 }
 
 impl Column {
@@ -145,7 +145,7 @@ impl Column {
             Type::Int64 => 8,
             Type::Float => 4,
             Type::Double => 8,
-            Type::Varchar => 1
+            Type::Varchar => 1,
         };
         init * self.len as usize
     }
@@ -159,7 +159,7 @@ impl Struct<SIZE_COLUMN_STRUCTURE> for Column {
         Column {
             name: 0,
             ty: Type::Null,
-            len: 0
+            len: 0,
         }
     }
 
@@ -171,11 +171,7 @@ impl Struct<SIZE_COLUMN_STRUCTURE> for Column {
         let name = u32::read_bytes_le(&buffer[0..4]);
         let ty = get_type_from_code(buffer[4])?;
         let len = u16::read_bytes_le(&buffer[5..7]);
-        Ok(Column {
-            name,
-            ty,
-            len
-        })
+        Ok(Column { name, ty, len })
     }
 
     fn to_bytes(&self) -> [u8; SIZE_COLUMN_STRUCTURE] {

@@ -28,13 +28,13 @@
 
 #![cfg(feature = "table")]
 
-use std::io::Seek;
-use bpx::core::Container;
 use bpx::core::header::{SECTION_TYPE_STRING, SECTION_TYPE_TABLE};
+use bpx::core::Container;
 use bpx::strings::StringSection;
 use bpx::table::column::Type;
 use bpx::table::error::Error;
 use bpx::table::Table;
+use std::io::Seek;
 
 #[test]
 fn attempt_create_read_table() {
@@ -72,8 +72,14 @@ fn attempt_create_read_table() {
     {
         buffer.seek(std::io::SeekFrom::Start(0)).unwrap();
         let container = Container::open(buffer).unwrap();
-        let strings = container.sections().find_by_type(SECTION_TYPE_STRING).unwrap();
-        let section = container.sections().find_by_type(SECTION_TYPE_TABLE).unwrap();
+        let strings = container
+            .sections()
+            .find_by_type(SECTION_TYPE_STRING)
+            .unwrap();
+        let section = container
+            .sections()
+            .find_by_type(SECTION_TYPE_TABLE)
+            .unwrap();
         let table = Table::open(&container, section, strings).unwrap();
         let a = table.get_column_pos("A").unwrap();
         let b = table.get_column_pos("B").unwrap();

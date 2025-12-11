@@ -191,7 +191,10 @@ impl<T> SectionTable<T> {
     ///
     /// Returns an [OpenError](OpenError) if the section is already in use
     /// or is not loaded. To ensure a section is loaded, call load.
-    pub fn open(&self, handle: Handle) -> std::result::Result<RefMut<'_, AutoSectionData>, OpenError> {
+    pub fn open(
+        &self,
+        handle: Handle,
+    ) -> std::result::Result<RefMut<'_, AutoSectionData>, OpenError> {
         let section = &self.sections[&handle.0];
         let data = section
             .data

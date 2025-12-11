@@ -28,6 +28,7 @@
 
 use std::io::{Read, Write};
 
+use crate::util::traits::ReadFill;
 use crate::{
     core::{
         header::SectionHeader,
@@ -36,7 +37,6 @@ use crate::{
     },
     package::{Architecture, Platform, Result, Settings, SECTION_TYPE_DATA},
 };
-use crate::util::traits::ReadFill;
 
 const DATA_WRITE_BUFFER_SIZE: usize = 8192;
 const MIN_DATA_REMAINING_SIZE: usize = DATA_WRITE_BUFFER_SIZE;

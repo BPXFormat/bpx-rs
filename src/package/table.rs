@@ -29,6 +29,7 @@
 use std::io::{Read, Seek, Write};
 use std::ops::Index;
 
+use crate::util::table::NamedItemTable;
 use crate::{
     core::{Container, Handle, SectionData},
     package::{
@@ -39,7 +40,6 @@ use crate::{
     },
     strings::{load_string_section, StringSection},
 };
-use crate::util::table::NamedItemTable;
 
 pub struct ObjectTable {
     strings: StringSection,
