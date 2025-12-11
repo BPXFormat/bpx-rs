@@ -34,7 +34,7 @@ use bpx::core::header::{SECTION_TYPE_STRING, SECTION_TYPE_TABLE};
 use bpx::strings::StringSection;
 use bpx::table::column::Type;
 use bpx::table::error::Error;
-use bpx::table::interface::Table;
+use bpx::table::Table;
 
 #[test]
 fn attempt_create_read_table() {
@@ -52,19 +52,19 @@ fn attempt_create_read_table() {
         let b = table.get_column_pos("B").unwrap();
         let c = table.get_column_pos("C").unwrap();
         {
-            let mut row = table.create_row().unwrap();
-            let err = row.write(0).unwrap_err();
+            let mut row = table.alloc_row();
+            let err = table.write(&row, 0).unwrap_err();
             assert!(matches!(err, Error::RowIndexOutOfBounds(0)));
-            let err = row.read(0).unwrap_err();
+            let err = table.read(&mut row, 0).unwrap_err();
             assert!(matches!(err, Error::RowIndexOutOfBounds(0)));
             row.cell_mut(a).set(0xFF).unwrap();
             row.cell_mut(b).set(0.42).unwrap();
             row.cell_mut(c).set("test").unwrap();
-            row.append().unwrap();
+            table.append(&row).unwrap();
             row.cell_mut(c).set("value").unwrap();
-            row.append().unwrap();
+            table.append(&row).unwrap();
             row.cell_mut(c).set("another value").unwrap();
-            row.append().unwrap();
+            table.append(&row).unwrap();
         }
         container.save().unwrap();
         container.into_inner()
@@ -78,19 +78,19 @@ fn attempt_create_read_table() {
         let a = table.get_column_pos("A").unwrap();
         let b = table.get_column_pos("B").unwrap();
         let c = table.get_column_pos("C").unwrap();
-        let mut row = table.create_row().unwrap();
-        // Annoying stupid language FAR too explicit...
-        row.read(0).unwrap();
+        assert_eq!(table.get_rows().unwrap(), 3);
+        let mut row = table.alloc_row();
+        table.read(&mut row, 0).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);
         assert_eq!(row.cell(c).get::<&str>().unwrap(), "test");
-        row.read(1).unwrap();
+        table.read(&mut row, 1).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);
         assert_eq!(row.cell(c).get::<&str>().unwrap(), "value");
-        row.read(2).unwrap();
+        table.read(&mut row, 2).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);

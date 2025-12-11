@@ -35,15 +35,15 @@ use crate::table::column::Type;
 use crate::table::error::{Error, ValueError};
 
 /// A pre-allocated row structure.
-pub struct RawRow {
+pub struct Row {
     data: Box<[u8]>,
     size: usize,
     header_size: usize
 }
 
-impl RawRow {
-    pub(super) fn new(header_size: usize, size: usize, actual_size: usize) -> RawRow {
-        RawRow {
+impl Row {
+    pub(super) fn new(header_size: usize, size: usize, actual_size: usize) -> Row {
+        Row {
             data: vec![0; actual_size].into_boxed_slice(),
             header_size,
             size
@@ -68,81 +68,6 @@ impl RawRow {
         } else {
             self.data[self.size] = 0;
         }
-    }
-
-    /// Returns the number of rows in the table.
-    ///
-    /// # Arguments
-    ///
-    /// * `section`: a reference to the low-level BPX [SectionData].
-    ///
-    /// returns: usize
-    pub fn get_len<S: SectionData>(&self, section: &S) -> usize {
-        let size = section.size() - self.header_size;
-        let len = size / self.data.len();
-        len
-    }
-
-    /// Reads the row at the given index into this structure.
-    ///
-    /// # Arguments
-    ///
-    /// * `index`: the index of the row in the section.
-    /// * `section`: a reference to the low-level BPX [SectionData].
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be read from the section.
-    pub fn read<S: SectionData>(&mut self, index: usize, section: &mut S) -> crate::table::Result<()> {
-        if index >= self.get_len(section) {
-            return Err(Error::RowIndexOutOfBounds(index));
-        }
-        section.seek(SeekFrom::Start((self.header_size + index * self.data.len()) as _))?;
-        section.read_exact(self.data.as_mut())?;
-        Ok(())
-    }
-
-    /// Writes this row at the given index into the section.
-    ///
-    /// This overwrites any previous stored content of the row in the section.
-    ///
-    /// # Arguments
-    ///
-    /// * `index`: the index of the row in the section.
-    /// * `section`: a reference to the low-level BPX [SectionData].
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be written into the section.
-    pub fn write<S: SectionData>(&self, index: usize, section: &mut S) -> crate::table::Result<()> {
-        if index >= self.get_len(section) {
-            return Err(Error::RowIndexOutOfBounds(index));
-        }
-        section.seek(SeekFrom::Start((self.header_size + index * self.data.len()) as _))?;
-        section.write_all(&self.data)?;
-        Ok(())
-    }
-
-    /// Writes this row at the end of the section.
-    ///
-    /// # Arguments
-    ///
-    /// * `section`: a reference to the low-level BPX [SectionData].
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be written into the section.
-    pub fn append<S: SectionData>(&self, section: &mut S) -> crate::table::Result<usize> {
-        let index = self.get_len(section);
-        section.seek(SeekFrom::End(0))?;
-        section.write_all(&self.data)?;
-        Ok(index)
     }
 
     /// Returns an immutable handle to the cell identified by the given [ColumnPos].
@@ -346,4 +271,83 @@ impl<'a> CellRef<'a> {
     pub fn get<T: Value<'a>>(&self) -> Result<T, ValueError> {
         T::read(self.data, self.ty)
     }
+}
+
+/// Returns the number of rows in the table.
+///
+/// # Arguments
+///
+/// * `section`: a reference to the low-level BPX [SectionData].
+/// * `row`: a pre-allocated row matching the table definition of `section`.
+///
+/// returns: usize
+pub fn count<S: SectionData>(section: &S, row: &Row) -> usize {
+    let size = section.size() - row.header_size;
+    let len = size / row.data.len();
+    len
+}
+
+/// Reads the row at the given index into this structure.
+///
+/// # Arguments
+///
+/// * `section`: a reference to the low-level BPX [SectionData].
+/// * `row`: a pre-allocated row matching the table definition of `section`.
+/// * `index`: the index of the row in the section.
+///
+/// returns: Result<(), Error>
+///
+/// # Errors
+///
+/// Returns an [Error] if the row data could not be read from the section.
+pub fn read<S: SectionData>(section: &mut S, row: &mut Row, index: usize) -> crate::table::Result<()> {
+    if index >= count(section, row) {
+        return Err(Error::RowIndexOutOfBounds(index));
+    }
+    section.seek(SeekFrom::Start((row.header_size + index * row.data.len()) as _))?;
+    section.read_exact(row.data.as_mut())?;
+    Ok(())
+}
+
+/// Writes this row at the given index into the section.
+///
+/// This overwrites any previous stored content of the row in the section.
+///
+/// # Arguments
+///
+/// * `section`: a reference to the low-level BPX [SectionData].
+/// * `row`: a pre-allocated row matching the table definition of `section`.
+/// * `index`: the index of the row in the section.
+///
+/// returns: Result<(), Error>
+///
+/// # Errors
+///
+/// Returns an [Error] if the row data could not be written into the section.
+pub fn write<S: SectionData>(section: &mut S, row: &Row, index: usize) -> crate::table::Result<()> {
+    if index >= count(section, row) {
+        return Err(Error::RowIndexOutOfBounds(index));
+    }
+    section.seek(SeekFrom::Start((row.header_size + index * row.data.len()) as _))?;
+    section.write_all(&row.data)?;
+    Ok(())
+}
+
+/// Writes this row at the end of the section.
+///
+/// # Arguments
+///
+/// * `section`: a reference to the low-level BPX [SectionData].
+/// * `row`: a pre-allocated row matching the table definition of `section`.
+///
+/// returns: Result<(), Error>
+///
+/// # Errors
+///
+/// Returns an [Error] if the row data could not be written into the section.
+pub fn append<S: SectionData>(section: &mut S, row: &Row) -> crate::table::Result<usize> {
+    let index = count(section, row);
+    section.seek(SeekFrom::End(0))?;
+    section.write_all(&row.data)?;
+    Ok(index)
 }

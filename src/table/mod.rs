@@ -34,9 +34,10 @@ pub mod column;
 mod table;
 pub mod header;
 pub mod row;
-pub mod interface;
+mod interface;
 
 pub use table::{ColumnTableMut, ColumnTableRef};
+pub use interface::Table;
 
 /// The result type for all operations on a BPX Table section.
 pub type Result<T> = std::result::Result<T, error::Error>;

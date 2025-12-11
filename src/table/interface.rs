@@ -26,98 +26,12 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//! High-level abstractions over the BPX Table section implementation.
-
-use std::cell::RefMut;
 use std::io::{Read, Seek};
-use crate::core::{AutoSectionData, Container, Handle};
+use crate::core::{Container, Handle};
 use crate::table::{ColumnTableMut, ColumnTableRef};
 use crate::table::core::RawTable;
 use crate::table::error::Error;
-use crate::table::row::{CellMut, CellRef, ColumnPos, RawRow};
-
-/// A high-level interface to [RawRow].
-pub struct Row<'a> {
-    row: RawRow,
-    data: RefMut<'a, AutoSectionData>
-}
-
-impl<'a> Row<'a> {
-    /// Is this row marked as free.
-    pub fn is_free(&self) -> bool {
-        self.row.is_free()
-    }
-
-
-    /// Sets the free flag for this row.
-    ///
-    /// # Arguments
-    ///
-    /// * `free`: true to mark this row as free, false otherwise.
-    ///
-    /// returns: ()
-    pub fn set_free(&mut self, free: bool) {
-        self.row.set_free(free)
-    }
-
-    /// Returns the number of rows in the table.
-    pub fn get_len(&self) -> usize {
-        self.row.get_len(&*self.data)
-    }
-
-    /// Reads the row at the given index into this structure.
-    ///
-    /// # Arguments
-    ///
-    /// * `index`: the index of the row in the section.
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be read from the section.
-    pub fn read(&mut self, index: usize) -> crate::table::Result<()> {
-        self.row.read(index, &mut *self.data)
-    }
-
-    /// Writes this row at the given index into the section.
-    ///
-    /// This overwrites any previous stored content of the row in the section.
-    ///
-    /// # Arguments
-    ///
-    /// * `index`: the index of the row in the section.
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be written into the section.
-    pub fn write(&mut self, index: usize) -> crate::table::Result<()> {
-        self.row.write(index, &mut *self.data)
-    }
-
-    /// Writes this row at the end of the section.
-    ///
-    /// returns: Result<(), Error>
-    ///
-    /// # Errors
-    ///
-    /// Returns an [Error] if the row data could not be written into the section.
-    pub fn append(&mut self) -> crate::table::Result<usize> {
-        self.row.append(&mut *self.data)
-    }
-
-    /// Returns an immutable handle to the cell identified by the given [ColumnPos].
-    pub fn cell(&self, pos: ColumnPos) -> CellRef<'_> {
-        self.row.cell(pos)
-    }
-
-    /// Returns a mutable handle to the cell identified by the given [ColumnPos].
-    pub fn cell_mut(&mut self, pos: ColumnPos) -> CellMut<'_> {
-        self.row.cell_mut(pos)
-    }
-}
+use crate::table::row::{Row, ColumnPos};
 
 /// A high-level interface to [RawTable].
 pub struct Table<'a, T> {
@@ -238,12 +152,65 @@ impl<'a, T> Table<'a, T> {
     ///
     /// Panics if the size of a single row according to this table definition is 0
     /// (i.e. [get_row_size](Self::get_row_size) returned 0).
-    pub fn create_row(&'a self) -> crate::table::Result<Row<'a>> {
+    pub fn alloc_row(&self) -> Row {
+        self.table.alloc_row()
+    }
+
+    /// Returns the number of rows in the table.
+    pub fn get_rows(&self) -> crate::table::Result<usize> {
         let data = self.container.sections().open(self.handle())?;
-        let row = self.table.create_row();
-        Ok(Row {
-            row,
-            data
-        })
+        Ok(crate::table::row::count(&*data, &self.alloc_row()))
+    }
+
+    /// Reads a row at the given index from this table.
+    ///
+    /// # Arguments
+    ///
+    /// * `row`: a pre-allocated row matching the table definition of `section`.
+    /// * `index`: the index of the row in the section.
+    ///
+    /// returns: Result<(), Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the row data could not be read from the section.
+    pub fn read(&self, row: &mut Row, index: usize) -> crate::table::Result<()> {
+        let mut data = self.container.sections().open(self.handle())?;
+        crate::table::row::read(&mut *data, row, index)
+    }
+
+    /// Writes a row at the given index into the section.
+    ///
+    /// This overwrites any previous stored content of the row in the section.
+    ///
+    /// # Arguments
+    ///
+    /// * `row`: a pre-allocated row matching the table definition of `section`.
+    /// * `index`: the index of the row in the section.
+    ///
+    /// returns: Result<(), Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the row data could not be written into the section.
+    pub fn write(&self, row: &Row, index: usize) -> crate::table::Result<()> {
+        let mut data = self.container.sections().open(self.handle())?;
+        crate::table::row::write(&mut *data, row, index)
+    }
+
+    /// Writes a row at the end of the section.
+    ///
+    /// # Arguments
+    ///
+    /// * `row`: a pre-allocated row matching the table definition of `section`.
+    ///
+    /// returns: Result<(), Error>
+    ///
+    /// # Errors
+    ///
+    /// Returns an [Error] if the row data could not be written into the section.
+    pub fn append(&self, row: &Row) -> crate::table::Result<usize> {
+        let mut data = self.container.sections().open(self.handle())?;
+        crate::table::row::append(&mut *data, row)
     }
 }
