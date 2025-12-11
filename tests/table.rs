@@ -33,8 +33,8 @@ use bpx::core::Container;
 use bpx::core::header::{SECTION_TYPE_STRING, SECTION_TYPE_TABLE};
 use bpx::strings::StringSection;
 use bpx::table::column::Type;
-use bpx::table::core::Table;
 use bpx::table::error::Error;
+use bpx::table::interface::Table;
 
 #[test]
 fn attempt_create_read_table() {
@@ -43,29 +43,28 @@ fn attempt_create_read_table() {
         let mut container = Container::create(buffer);
         let strings = StringSection::create(&mut container).handle();
         let mut table = Table::create(&mut container, "Test", strings).unwrap();
-        let mut columns = table.columns_mut(&container);
+        let mut columns = table.columns_mut();
         columns.create("A", Type::Uint8, 1).unwrap();
         columns.create("B", Type::Float, 1).unwrap();
         columns.create("C", Type::Varchar, 8).unwrap();
-        table.save(&container).unwrap();
-        let a = table.get_column_pos(&container, "A").unwrap();
-        let b = table.get_column_pos(&container, "B").unwrap();
-        let c = table.get_column_pos(&container, "C").unwrap();
+        table.save().unwrap();
+        let a = table.get_column_pos("A").unwrap();
+        let b = table.get_column_pos("B").unwrap();
+        let c = table.get_column_pos("C").unwrap();
         {
-            let mut data = container.sections().open(table.handle()).unwrap();
-            let mut row = table.create_row();
-            let err = row.write(0, &mut *data).unwrap_err();
+            let mut row = table.create_row().unwrap();
+            let err = row.write(0).unwrap_err();
             assert!(matches!(err, Error::RowIndexOutOfBounds(0)));
-            let err = row.read(0, &mut *data).unwrap_err();
+            let err = row.read(0).unwrap_err();
             assert!(matches!(err, Error::RowIndexOutOfBounds(0)));
             row.cell_mut(a).set(0xFF).unwrap();
             row.cell_mut(b).set(0.42).unwrap();
             row.cell_mut(c).set("test").unwrap();
-            row.append(&mut *data).unwrap();
+            row.append().unwrap();
             row.cell_mut(c).set("value").unwrap();
-            row.append(&mut *data).unwrap();
+            row.append().unwrap();
             row.cell_mut(c).set("another value").unwrap();
-            row.append(&mut *data).unwrap();
+            row.append().unwrap();
         }
         container.save().unwrap();
         container.into_inner()
@@ -76,23 +75,22 @@ fn attempt_create_read_table() {
         let strings = container.sections().find_by_type(SECTION_TYPE_STRING).unwrap();
         let section = container.sections().find_by_type(SECTION_TYPE_TABLE).unwrap();
         let table = Table::open(&container, section, strings).unwrap();
-        let a = table.get_column_pos(&container, "A").unwrap();
-        let b = table.get_column_pos(&container, "B").unwrap();
-        let c = table.get_column_pos(&container, "C").unwrap();
-        let mut data = container.sections().open(table.handle()).unwrap();
-        let mut row = table.create_row();
+        let a = table.get_column_pos("A").unwrap();
+        let b = table.get_column_pos("B").unwrap();
+        let c = table.get_column_pos("C").unwrap();
+        let mut row = table.create_row().unwrap();
         // Annoying stupid language FAR too explicit...
-        row.read(0, &mut *data).unwrap();
+        row.read(0).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);
         assert_eq!(row.cell(c).get::<&str>().unwrap(), "test");
-        row.read(1, &mut *data).unwrap();
+        row.read(1).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);
         assert_eq!(row.cell(c).get::<&str>().unwrap(), "value");
-        row.read(2, &mut *data).unwrap();
+        row.read(2).unwrap();
         assert!(!row.is_free());
         assert_eq!(0xFF, row.cell(a).get().unwrap());
         assert!((0.42 - row.cell(b).get::<f64>().unwrap()).abs() < 0.001);

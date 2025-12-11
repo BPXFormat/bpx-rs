@@ -36,18 +36,18 @@ use crate::strings::{load_string_section, StringSection};
 use crate::table::column::{Column, SIZE_COLUMN_STRUCTURE};
 use crate::table::error::Error;
 use crate::table::header::{Header, SIZE_HEADER_STRUCTURE};
-use crate::table::row::{ColumnPos, Row};
+use crate::table::row::{ColumnPos, RawRow};
 use crate::table::table::{ColumnTable, ColumnTableMut, ColumnTableRef};
 use crate::util::table::NamedItemTable;
 
 /// The core table type.
-pub struct Table {
+pub struct RawTable {
     handle: Handle,
     header: Header,
     col_table: ColumnTable
 }
 
-impl Table {
+impl RawTable {
     /// Opens a BPX [Table] section.
     ///
     /// # Arguments
@@ -232,15 +232,15 @@ impl Table {
         }
     }
 
-    /// Creates a [Row] structure that fits this table definition.
+    /// Creates a [RawRow] structure that fits this table definition.
     ///
     /// # Panics
     ///
     /// Panics if the size of a single row according to this table definition is 0
     /// (i.e. [get_row_size](Self::get_row_size) returned 0).
-    pub fn create_row(&self) -> Row {
+    pub fn create_row(&self) -> RawRow {
         assert!(self.get_row_size() > 0);
-        Row::new(SIZE_HEADER_STRUCTURE + (self.col_table.len() * SIZE_COLUMN_STRUCTURE), self.get_row_size(), self.get_actual_row_size())
+        RawRow::new(SIZE_HEADER_STRUCTURE + (self.col_table.len() * SIZE_COLUMN_STRUCTURE), self.get_row_size(), self.get_actual_row_size())
     }
 }
 

@@ -35,15 +35,15 @@ use crate::table::column::Type;
 use crate::table::error::{Error, ValueError};
 
 /// A pre-allocated row structure.
-pub struct Row {
+pub struct RawRow {
     data: Box<[u8]>,
     size: usize,
     header_size: usize
 }
 
-impl Row {
-    pub(super) fn new(header_size: usize, size: usize, actual_size: usize) -> Row {
-        Row {
+impl RawRow {
+    pub(super) fn new(header_size: usize, size: usize, actual_size: usize) -> RawRow {
+        RawRow {
             data: vec![0; actual_size].into_boxed_slice(),
             header_size,
             size
@@ -170,8 +170,6 @@ pub struct ColumnPos {
     pub(super) len: usize,
     pub(super) ty: Type
 }
-
-//FIXME: find a better API.
 
 /// Represents the value stored in a cell.
 pub trait Value<'a>: Sized {

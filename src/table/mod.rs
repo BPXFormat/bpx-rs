@@ -34,6 +34,7 @@ pub mod column;
 mod table;
 pub mod header;
 pub mod row;
+pub mod interface;
 
 pub use table::{ColumnTableMut, ColumnTableRef};
 
