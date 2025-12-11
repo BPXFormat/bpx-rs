@@ -67,8 +67,8 @@ impl Struct<SIZE_HEADER_STRUCTURE> for Header {
 
     fn to_bytes(&self) -> [u8; SIZE_HEADER_STRUCTURE] {
         let mut buffer = [0; SIZE_HEADER_STRUCTURE];
-        self.name.write_bytes_be(&mut buffer[0..4]);
-        self.columns.write_bytes_be(&mut buffer[4..6]);
+        self.name.write_bytes_le(&mut buffer[0..4]);
+        self.columns.write_bytes_le(&mut buffer[4..6]);
         buffer
     }
 }
