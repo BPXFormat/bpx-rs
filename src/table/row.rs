@@ -287,7 +287,7 @@ impl<'a> Value<'a> for &'a str {
     fn read(cell: &'a [u8], ty: Type) -> Result<Self, ValueError> {
         match ty {
             Type::Null => Err(ValueError::Null),
-            Type::Varchar => std::str::from_utf8(cell).map_err(ValueError::Utf8),
+            Type::Varchar => std::str::from_utf8(cell).map(|v| v.trim_matches(&['\0'])).map_err(ValueError::Utf8),
             _ => Err(ValueError::IncompatibleType)
         }
     }
