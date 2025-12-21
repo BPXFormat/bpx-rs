@@ -30,7 +30,9 @@ use std::io::{Read, Seek, SeekFrom, Write};
 
 use once_cell::unsync::OnceCell;
 
+use super::{CreateOptions, OpenOptions, Options, DEFAULT_MAX_DEPTH};
 use crate::shader::{Target, Type};
+use crate::util::table::NamedItemTable;
 use crate::{
     core::{
         header::{Struct, SECTION_TYPE_STRING},
@@ -48,8 +50,6 @@ use crate::{
     },
     strings::StringSection,
 };
-use crate::util::table::NamedItemTable;
-use super::{CreateOptions, OpenOptions, Options, DEFAULT_MAX_DEPTH};
 
 /// A BPXS (ShaderPack).
 ///

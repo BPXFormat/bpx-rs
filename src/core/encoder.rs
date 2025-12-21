@@ -38,8 +38,7 @@ use crate::core::header::SectionHeader;
 use crate::core::SectionInfo;
 use crate::core::{
     compression::{
-        Checksum, Crc32Checksum, Deflater, WeakChecksum, XzCompressionMethod,
-        ZlibCompressionMethod,
+        Checksum, Crc32Checksum, Deflater, WeakChecksum, XzCompressionMethod, ZlibCompressionMethod,
     },
     error::{Error, OpenError},
     header::{

@@ -36,12 +36,12 @@ use std::{
     io::{Read, Seek, Write},
 };
 
+use super::header::GetChecksum;
 use crate::core::handle::HandleGenerator;
 use crate::core::SectionInfo;
 use crate::core::{
     compression::{
-        Checksum, Crc32Checksum, Inflater, WeakChecksum, XzCompressionMethod,
-        ZlibCompressionMethod,
+        Checksum, Crc32Checksum, Inflater, WeakChecksum, XzCompressionMethod, ZlibCompressionMethod,
     },
     data::AutoSectionData,
     error::Error,
@@ -53,7 +53,6 @@ use crate::core::{
     Result,
 };
 use crate::util::traits::ReadFill;
-use super::header::GetChecksum;
 
 const READ_BLOCK_SIZE: usize = 8192;
 

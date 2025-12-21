@@ -26,17 +26,17 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::io::{Read, Seek};
 use crate::core::{Container, Handle};
-use crate::table::{ColumnTableMut, ColumnTableRef};
 use crate::table::core::RawTable;
 use crate::table::error::Error;
-use crate::table::row::{Row, ColumnPos};
+use crate::table::row::{ColumnPos, Row};
+use crate::table::{ColumnTableMut, ColumnTableRef};
+use std::io::{Read, Seek};
 
 /// A high-level interface to [RawTable].
 pub struct Table<'a, T> {
     table: RawTable,
-    container: &'a Container<T>
+    container: &'a Container<T>,
 }
 
 impl<'a, T> Table<'a, T> {
@@ -53,12 +53,13 @@ impl<'a, T> Table<'a, T> {
     /// # Errors
     ///
     /// Returns an [Error] if the table name could not be written to the strings section.
-    pub fn create(container: &'a mut Container<T>, name: &str, strings: Handle) -> Result<Self, Error> {
+    pub fn create(
+        container: &'a mut Container<T>,
+        name: &str,
+        strings: Handle,
+    ) -> Result<Self, Error> {
         let table = RawTable::create(container, name, strings)?;
-        Ok(Self {
-            table,
-            container
-        })
+        Ok(Self { table, container })
     }
 
     /// Opens a BPX [Table] section.
@@ -74,12 +75,12 @@ impl<'a, T> Table<'a, T> {
     /// # Errors
     ///
     /// Returns an [Error] if the table section header could not be loaded.
-    pub fn open(container: &'a Container<T>, handle: Handle, strings: Handle) -> Result<Self, Error> where T: Read + Seek {
+    pub fn open(container: &'a Container<T>, handle: Handle, strings: Handle) -> Result<Self, Error>
+    where
+        T: Read + Seek,
+    {
         let table = RawTable::open(container, handle, strings)?;
-        Ok(Self {
-            table,
-            container
-        })
+        Ok(Self { table, container })
     }
 
     /// Loads the name of this table from the string section.
@@ -90,7 +91,10 @@ impl<'a, T> Table<'a, T> {
     ///
     /// Returns an [Error] if the string section failed to load or if the name failed to load from
     /// the string section.
-    pub fn load_name(&self) -> Result<&str, Error> where T: Read + Seek {
+    pub fn load_name(&self) -> Result<&str, Error>
+    where
+        T: Read + Seek,
+    {
         self.table.load_name(self.container)
     }
 
@@ -142,7 +146,10 @@ impl<'a, T> Table<'a, T> {
     ///
     /// An [Error] is returned if the string section could not be loaded, if a column name failed
     /// to load from the string section or if no column exists for the given name.
-    pub fn get_column_pos(&self, name: &str) -> Result<ColumnPos, Error> where T: Read + Seek {
+    pub fn get_column_pos(&self, name: &str) -> Result<ColumnPos, Error>
+    where
+        T: Read + Seek,
+    {
         self.table.get_column_pos(self.container, name)
     }
 

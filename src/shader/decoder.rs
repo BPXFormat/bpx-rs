@@ -28,6 +28,7 @@
 
 use std::io::{Read, Seek};
 
+use crate::util::table::NamedItemTable;
 use crate::{
     core::{header::Struct, Container, Handle},
     shader::{
@@ -36,7 +37,6 @@ use crate::{
         Result, Stage, Target, Type,
     },
 };
-use crate::util::table::NamedItemTable;
 
 pub fn get_target_type_from_code(acode: u8, tcode: u8) -> Result<(Target, Type)> {
     let target;

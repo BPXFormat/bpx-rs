@@ -28,9 +28,9 @@
 
 //! Error definition.
 
-use std::fmt::{Display, Formatter};
 use crate::core::error::OpenError;
 use crate::impl_err_conversion;
+use std::fmt::{Display, Formatter};
 
 /// The error type.
 #[derive(Debug)]
@@ -80,7 +80,7 @@ impl Display for Error {
             Error::Strings(e) => write!(f, "strings error: {}", e),
             Error::Bpx(e) => write!(f, "BPX error: {}", e),
             Error::RowIndexOutOfBounds(i) => write!(f, "row index out of bounds ({})", i),
-            Error::ColumnNotFound(name) => write!(f, "column name not found ({})", name)
+            Error::ColumnNotFound(name) => write!(f, "column name not found ({})", name),
         }
     }
 }
@@ -101,7 +101,7 @@ pub enum ValueError {
 
     /// The column data type is a [Varchar](crate::table::column::Type::Varchar) and contains
     /// invalid UTF-8 bytes.
-    Utf8(std::str::Utf8Error)
+    Utf8(std::str::Utf8Error),
 }
 
 impl Display for ValueError {

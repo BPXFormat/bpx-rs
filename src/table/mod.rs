@@ -28,16 +28,16 @@
 
 //! This module contains an implementation of the BPX Table section format.
 
+pub mod column;
 pub mod core;
 pub mod error;
-pub mod column;
-mod table;
 pub mod header;
-pub mod row;
 mod interface;
+pub mod row;
+mod table;
 
-pub use table::{ColumnTableMut, ColumnTableRef};
 pub use interface::Table;
+pub use table::{ColumnTableMut, ColumnTableRef};
 
 /// The result type for all operations on a BPX Table section.
 pub type Result<T> = std::result::Result<T, error::Error>;

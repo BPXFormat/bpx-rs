@@ -31,7 +31,9 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use bytesutil::ByteBuf;
 use once_cell::unsync::OnceCell;
 
+use super::{CreateOptions, OpenOptions, Options, DEFAULT_MAX_DEPTH};
 use crate::package::{Architecture, Platform};
+use crate::util::table::NamedItemTable;
 use crate::{
     core::{
         header::{Struct, SECTION_TYPE_SD, SECTION_TYPE_STRING},
@@ -48,8 +50,6 @@ use crate::{
     sd::Value,
     strings::StringSection,
 };
-use crate::util::table::NamedItemTable;
-use super::{CreateOptions, OpenOptions, Options, DEFAULT_MAX_DEPTH};
 
 /// A BPXP (Package).
 ///

@@ -28,24 +28,21 @@
 
 //! Column header table definition.
 
-use std::io::{Read, Seek};
-use std::ops::Index;
 use crate::core::Container;
 use crate::strings::{load_string_section, StringSection};
 use crate::table::column::{Column, Type};
 use crate::util::table::NamedItemTable;
+use std::io::{Read, Seek};
+use std::ops::Index;
 
 pub struct ColumnTable {
     pub(super) strings: StringSection,
-    table: NamedItemTable<Column>
+    table: NamedItemTable<Column>,
 }
 
 impl ColumnTable {
     pub fn new(table: NamedItemTable<Column>, strings: StringSection) -> ColumnTable {
-        ColumnTable {
-            strings,
-            table
-        }
+        ColumnTable { strings, table }
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, Column> {
@@ -60,7 +57,13 @@ impl ColumnTable {
         self.table.len()
     }
 
-    pub fn create<T>(&mut self, container: &Container<T>, name: &str, ty: Type, len: u16) -> crate::table::Result<usize> {
+    pub fn create<T>(
+        &mut self,
+        container: &Container<T>,
+        name: &str,
+        ty: Type,
+        len: u16,
+    ) -> crate::table::Result<usize> {
         let address = self.strings.put(container, name)?;
         let buf = Column {
             name: address,

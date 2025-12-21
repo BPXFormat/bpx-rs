@@ -32,6 +32,7 @@ use std::io;
 
 use bytesutil::{ByteBuf, ReadBytes, StaticByteBuf, WriteBytes};
 
+use crate::util::traits::ReadFill;
 use crate::{
     core::{
         error::Error,
@@ -40,7 +41,6 @@ use crate::{
     util::garraylen::*,
     util::RecoverableError,
 };
-use crate::util::traits::ReadFill;
 
 /// Represents a serializable and deserializable byte structure in a BPX.
 pub trait Struct<const S: usize> {

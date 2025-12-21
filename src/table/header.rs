@@ -28,9 +28,9 @@
 
 //! Table header definition.
 
-use bytesutil::{ReadBytes, WriteBytes};
 use crate::core::header::Struct;
 use crate::table::error::Error;
+use bytesutil::{ReadBytes, WriteBytes};
 
 /// Size in bytes of a table header structure.
 pub const SIZE_HEADER_STRUCTURE: usize = 8;
@@ -41,7 +41,7 @@ pub struct Header {
     pub name: u32,
 
     /// The number of columns in this table section.
-    pub columns: u16
+    pub columns: u16,
 }
 
 impl Struct<SIZE_HEADER_STRUCTURE> for Header {
@@ -51,7 +51,7 @@ impl Struct<SIZE_HEADER_STRUCTURE> for Header {
     fn new() -> Self {
         Header {
             name: 0,
-            columns: 0
+            columns: 0,
         }
     }
 
