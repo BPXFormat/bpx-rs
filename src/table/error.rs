@@ -85,6 +85,8 @@ impl Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 /// An error that can arise when reading/writing values in cells.
 #[derive(Debug)]
 pub enum ValueError {
@@ -101,3 +103,16 @@ pub enum ValueError {
     /// invalid UTF-8 bytes.
     Utf8(std::str::Utf8Error)
 }
+
+impl Display for ValueError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ValueError::Null => write!(f, "attempt to read/write a NULL value"),
+            ValueError::IncompatibleType => write!(f, "attempt to read/write an incompatible type"),
+            ValueError::Overflow => write!(f, "attempt to read/write an integer with overflow"),
+            ValueError::Utf8(v) => write!(f, "utf8 error: {}", v),
+        }
+    }
+}
+
+impl std::error::Error for ValueError {}
