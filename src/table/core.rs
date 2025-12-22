@@ -261,8 +261,8 @@ impl RawTable {
                 return Some(ColumnPos {
                     offset,
                     len: column.get_size(),
-                    ty: column.ty
-                })
+                    ty: column.ty,
+                });
             }
             offset += column.get_size();
         }
