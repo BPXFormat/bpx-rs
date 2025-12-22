@@ -246,6 +246,30 @@ impl RawTable {
         }
     }
 
+    /// Returns the [ColumnPos] structure associated with the given column from its index. Returns
+    /// [None] when the index is out of bounds.
+    ///
+    /// # Arguments
+    ///
+    /// * `container`: the container which owns the table section.
+    /// * `index`: the index of the column to find.
+    ///
+    /// returns: Option<ColumnPos>
+    pub fn get_column_pos_at<T>(&self, container: &Container<T>, index: usize) -> Option<ColumnPos> {
+        let mut offset = 0;
+        for (index, column) in self.col_table.iter().enumerate() {
+            if index == index {
+                return Some(ColumnPos {
+                    offset,
+                    len: column.get_size(),
+                    ty: column.ty
+                })
+            }
+            offset += column.get_size();
+        }
+        None
+    }
+
     /// Creates a [Row] structure that fits this table definition.
     ///
     /// # Panics

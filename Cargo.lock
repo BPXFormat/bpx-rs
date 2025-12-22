@@ -10,7 +10,7 @@ checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 
 [[package]]
 name = "bpx"
-version = "4.0.0-rc.13.1.0"
+version = "4.0.0-rc.13.2.0"
 dependencies = [
  "bytesutil",
  "elsa",
