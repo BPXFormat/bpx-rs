@@ -113,13 +113,13 @@ impl AutoSectionData {
             // and that is an unrecoverable internal BPX error.
             DynSectionData::File(_) => std::hint::unreachable_unchecked(),
         }?;
-        self.inner = Box::new(DynSectionData::File(file));
+        *self.inner = DynSectionData::File(file);
         Ok(())
     }
 
     /// Clears this section data and resets to a default dynamically sized in-memory buffer.
     pub fn clear(&mut self) {
-        self.inner = Box::new(DynSectionData::Memory(InMemorySection::new(INIT_BUF_SIZE)))
+        *self.inner = DynSectionData::Memory(InMemorySection::new(INIT_BUF_SIZE))
     }
 }
 

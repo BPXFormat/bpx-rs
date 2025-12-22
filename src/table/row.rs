@@ -210,7 +210,7 @@ impl<'a> Value<'a> for &'a str {
         match ty {
             Type::Null => Err(ValueError::Null),
             Type::Varchar => std::str::from_utf8(cell)
-                .map(|v| v.trim_matches(&['\0']))
+                .map(|v| v.trim_matches(['\0']))
                 .map_err(ValueError::Utf8),
             _ => Err(ValueError::IncompatibleType),
         }
@@ -285,8 +285,7 @@ impl<'a> CellRef<'a> {
 /// returns: usize
 pub fn count<S: SectionData>(section: &S, row: &Row) -> usize {
     let size = section.size() - row.header_size;
-    let len = size / row.data.len();
-    len
+    size / row.data.len()
 }
 
 /// Reads the row at the given index into this structure.

@@ -34,6 +34,8 @@ pub mod error;
 pub mod header;
 mod interface;
 pub mod row;
+
+#[allow(clippy::module_inception)] //whatever
 mod table;
 
 pub use interface::Table;
