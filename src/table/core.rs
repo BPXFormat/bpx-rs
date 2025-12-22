@@ -255,15 +255,19 @@ impl RawTable {
     /// * `index`: the index of the column to find.
     ///
     /// returns: Option<ColumnPos>
-    pub fn get_column_pos_at<T>(&self, container: &Container<T>, index: usize) -> Option<ColumnPos> {
+    pub fn get_column_pos_at<T>(
+        &self,
+        container: &Container<T>,
+        index: usize,
+    ) -> Option<ColumnPos> {
         let mut offset = 0;
         for (index, column) in self.col_table.iter().enumerate() {
             if index == index {
                 return Some(ColumnPos {
                     offset,
                     len: column.get_size(),
-                    ty: column.ty
-                })
+                    ty: column.ty,
+                });
             }
             offset += column.get_size();
         }
