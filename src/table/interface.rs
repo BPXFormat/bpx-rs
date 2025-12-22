@@ -153,6 +153,18 @@ impl<'a, T> Table<'a, T> {
         self.table.get_column_pos(self.container, name)
     }
 
+    /// Returns the [ColumnPos] structure associated with the given column from its index. Returns
+    /// [None] when the index is out of bounds.
+    ///
+    /// # Arguments
+    ///
+    /// * `index`: the index of the column to find.
+    ///
+    /// returns: Option<ColumnPos>
+    pub fn get_column_pos_at(&self, index: usize) -> Option<ColumnPos> {
+        self.table.get_column_pos_at(index)
+    }
+
     /// Creates a [Row] structure that fits this table definition.
     ///
     /// # Panics
